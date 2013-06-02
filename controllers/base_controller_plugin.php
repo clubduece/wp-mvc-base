@@ -574,6 +574,13 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			global $post;
 			$screen = get_current_screen();
 			
+			//register the scripts
+			if( isset( $this->admin_scripts ) ):
+				foreach( $this->admin_scripts as $script ):
+					$script->register();
+				endforeach;
+			endif;
+
 			if( ( $hook == 'post.php' || $hook == 'edit.php' || $hook == 'post-new.php' ) ) {
 				if ( isset( $this->cpts ) ) {
 					foreach($this->cpts as $cpt){
@@ -589,6 +596,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 								if ( is_array( $scripts ) ){
 									foreach( $scripts as $script ):
 										$script->enqueue();
+										$script->localize();
 									endforeach;
 								}
 							}

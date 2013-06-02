@@ -165,6 +165,19 @@ if ( ! class_exists( 'Base_Model_JS_Object' ) ):
 			$this->localization_args	= $localization_args;
 		}
 		
+		
+		/**
+		 * Register the script globally.
+		 *
+		 * @package WP Base\Models
+		 * @link http://codex.wordpress.org/Function_Reference/wp_register_script
+		 * @since 0.1
+		 */
+		public function register()
+		{	
+			wp_register_script( $this->handle, $this->src, $this->deps, $this->version, $this->in_footer );
+		}
+		
 		/**
 		 * Enqueue the script.
 		 *
@@ -190,7 +203,7 @@ if ( ! class_exists( 'Base_Model_JS_Object' ) ):
 		 * @link http://codex.wordpress.org/Function_Reference/wp_localize_script
 		 * @since 0.1
 		 */
-		private function _localize()
+		public function localize()
 		{
 			if ( isset( $this->localization_var ) && isset( $this->localization_args ) ):
 				return wp_localize_script( $this->handle, $this->localization_var, $this->localization_args );

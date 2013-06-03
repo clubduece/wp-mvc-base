@@ -939,7 +939,10 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 					if ( is_null( $field['callback'] ) )
 						$field['callback'] = array( &$this, 'render_settings_field' );
 						
-					add_settings_field( $key, $field['title'], $field['callback'], $field['page'], $field['section'], $field['args'] );
+					$field = apply_filters( 'ah_filter_settings_field-' . $key, $field );
+					
+					if ( ! is_null( $field ) )
+						add_settings_field( $key, $field['title'], $field['callback'], $field['page'], $field['section'], $field['args'] );
 				endforeach;
 			endif;
 		}
@@ -1153,7 +1156,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 		 * Render a select input field options block.
 		 *
 		 * @package WP Base\Controllers
-		 * @param array $options A key/value pair of option display strings and values.
+		 * @param array $options A key/value pair of values and option display strings.
 		 * @param string $current_value The current value for this option field.
 		 * @since 0.1
 		 */
@@ -1165,9 +1168,9 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			if( is_array( $options ) ):
 				foreach( $options as $key => $val ):
 					$html .= sprintf ( '<option value="%1$s" %2$s>%3$s</option>', 
-						$val,
-						$current_value == $val ? 'selected' : '',
-						$key
+						$key,
+						$current_value == $key ? 'selected' : '',
+						$val
 					);
 				endforeach;
 			endif;

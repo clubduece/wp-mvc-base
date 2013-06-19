@@ -7,11 +7,11 @@ php:
 
 env:
 - WP_VERSION=master WP_MULTISITE=0
-#- WP_VERSION=3.5.1 WP_MULTISITE=0
-#- WP_VERSION=3.5 WP_MULTISITE=0
-#- WP_VERSION=master WP_MULTISITE=1
-#- WP_VERSION=3.5.1 WP_MULTISITE=1
-#- WP_VERSION-3.5 WP_MULTISITE=1
+- WP_VERSION=3.5.1 WP_MULTISITE=0
+- WP_VERSION=3.5 WP_MULTISITE=0
+- WP_VERSION=master WP_MULTISITE=1
+- WP_VERSION=3.5.1 WP_MULTISITE=1
+- WP_VERSION-3.5 WP_MULTISITE=1
 
 before_script:
 #Coveralls support
@@ -23,25 +23,28 @@ before_script:
 - mkdir -p build/logs
 - mkdir -p build/cov
 #phpUnit setup
-- mkdir -p tmp
-- export WP_CORE_DIR=tmp/wordpress/
-- export WP_TESTS_DIR=tmp/wordpress-tests/
-- wget -nv -O tmp/wordpress.tar.gz https://github.com/WordPress/WordPress/tarball/$WP_VERSION
+#- mkdir -p tmp
+# Initialize the WP core directory
+- export WP_CORE_DIR=/tmp/wordpress/
+- wget -nv -O /tmp/wordpress.tar.gz https://github.com/WordPress/WordPress/tarball/$WP_VERSION
 - mkdir -p $WP_CORE_DIR
-- tar --strip-components=1 -zxmf tmp/wordpress.tar.gz -C $WP_CORE_DIR
-- svn co --ignore-externals http://unit-tests.svn.wordpress.org/trunk/ tmp/wordpress-tests/
-- cp tmp/wordpress-tests/wp-tests-config-sample.php tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s:dirname( __FILE__ ) . '/wordpress/':'$WP_CORE_DIR':" tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/yourdbnamehere/wordpress_test/" tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/yourusernamehere/root/" tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/yourpasswordhere//" tmp/wordpress-tests/wp-tests-config.php
+- tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
+# Initialize the WP unit test directory
+- export WP_TESTS_DIR=/tmp/wordpress-tests/
+- svn co http://unit-tests.svn.wordpress.org/trunk/ /tmp/wordpress-tests/
+# Set up the database access
+- cp /tmp/wordpress-tests/wp-tests-config-sample.php /tmp/wordpress-tests/wp-tests-config.php
+- sed -i "s:dirname( __FILE__ ) . '/wordpress/':'$WP_CORE_DIR':" /tmp/wordpress-tests/wp-tests-config.php
+- sed -i "s/yourdbnamehere/wordpress_test/" /tmp/wordpress-tests/wp-tests-config.php
+- sed -i "s/yourusernamehere/root/" /tmp/wordpress-tests/wp-tests-config.php
+- sed -i "s/yourpasswordhere//" /tmp/wordpress-tests/wp-tests-config.php
 - mysql -e 'CREATE DATABASE wordpress_test;' -uroot
 
 script:
 - phpunit
 
 after_script:
-- php vendor/bin/coveralls -v
+- php vendor/bin/coveralls -v --dry-run
 
 notifications:
     email:

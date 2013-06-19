@@ -24,13 +24,13 @@ namespace WPMVCBase\Testing
 				'mySuperCoolL10n',
 				array( 'foo' => 'bar' )
 			);
-	
-			$this->_script->register();
-			$this->_script->localize();
 		}
 		
-		public function testRegister()
+		public function test_register()
 		{
+			$this->_script->register();
+			$this->_script->enqueue();
+			$this->_script->localize();
 			$this->assertArrayHasKey( 'my-super-cool-script', $GLOBALS['wp_scripts']->registered );
 		}
 		
@@ -39,7 +39,7 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( 'my-super-cool-script', $GLOBALS['wp_scripts']->registered['my-super-cool-script']->handle );
 		}
 		
-		public function testRegisterSrc()
+		public function test_register_src()
 		{
 			$this->assertEquals( 
 				'http://my-super-cool-site.com/wp-content/plugins/js/my-super-cool-script.js',
@@ -47,7 +47,7 @@ namespace WPMVCBase\Testing
 			);
 		}
 		
-		public function testRegisterDeps()
+		public function test_register_deps()
 		{
 			$this->assertEquals( 
 				array( 'jquery', 'my-super-cool-framework' ),
@@ -55,7 +55,7 @@ namespace WPMVCBase\Testing
 			);
 		}
 		
-		public function testRegisterVer()
+		public function test_register_ver()
 		{
 			$this->assertEquals( 
 				true,
@@ -65,7 +65,16 @@ namespace WPMVCBase\Testing
 		
 		public function testLocalize()
 		{
-			//print_r($GLOBALS);
+			/**
+			 * @todo Determine how to test this
+			 */
+		}
+		
+		public function test_deregister()
+		{
+			$this->_script->deregister();
+			$this->assertFalse( array_key_exists( 'my-super-cool-script', $GLOBALS['wp_scripts']->registered ) );
+			
 		}
 	}
 }

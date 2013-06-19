@@ -20,7 +20,7 @@ namespace WPMVCBase\Testing
 		public function __construct( $uri, $txtdomain )
 		{
 			parent::__construct( $uri, $txtdomain );
-			add_action( 'init', array( &$this, 'register' ) );
+			$this->help_screen = array(  'title' => 'My Help Screen', 'id' => 'demo-help', 'call' => 'my_callback_function' );
 		}
 		
 		public function save( $postdata )
@@ -43,7 +43,7 @@ namespace WPMVCBase\Testing
 		
 		public function SetUp()
 		{
-			$this->_cpt = new Test_Stub_Base_Model_CPT( 'http://example.com', 'my-super-cool-text-domain' );
+			$this->_cpt = new Test_Stub_Base_Model_CPT( 'http://my-super-cool-site.com', 'my-super-cool-text-domain' );
 			$this->_post = new \StdClass;
 			$this->_post->ID = 4;
 		}
@@ -61,6 +61,14 @@ namespace WPMVCBase\Testing
 		public function test_get_shortcodes()
 		{
 			$this->assertEquals( array( 'my-super-cool-shortcode' => 'my-super-cool-callback' ), $this->_cpt->get_shortcodes() );
+		}
+		
+		public function test_get_help_screen()
+		{
+			$this->assertEquals( 
+				array( 'title' => 'My Help Screen', 'id' => 'demo-help', 'call' => 'my_callback_function' ),
+				$this->_cpt->get_help_screen( __FILE__, 'my-super-cool-text-domain' )
+			);
 		}
 		
 		public function test_get_post_updated_messages()
@@ -83,6 +91,81 @@ namespace WPMVCBase\Testing
 			);
 			
 			$this->assertEquals( $messages, $this->_cpt->get_post_updated_messages( $this->_post->ID, 'my-super-cool-text-domain' ) );
+		}
+
+		/*
+		public function test_register()
+		{
+			$this->assertFalse( is_wp_error( $this->_cpt->register( 'http://my-super-cool-site.com', 'my-super-cool-text-domain' ) ) );
+		}
+		*/
+
+		public function test_init_metaboxes()
+		{
+			$this->assertEquals(  
+				array(
+					'book_metabox' => array(
+						'id' => 'book_metabox',
+						'title' => __( 'Book Metabox', $txtdomain ),
+						'post_type' => 'my-super-cool-cpt',
+						'context' => 'normal',
+						'priority' => 'default',
+						'callback_args' => array () 
+					)
+				),
+				$this->_cpt->get_metaboxes( 4, 'my-super-cool-textdomain' )
+			);
+		}
+		
+		public function test_get_args()
+		{
+			$labels = array(
+				'name'                => _x( 'Books', 'Post Type General Name', 'my-super-cool-text-domain' ),
+				'singular_name'       => _x( 'Book', 'Post Type Singular Name', 'my-super-cool-text-domain' ),
+				'menu_name'           => __( 'Books', 'my-super-cool-text-domain' ),
+				'parent_item_colon'   => __( 'Parent Book', 'my-super-cool-text-domain' ),
+				'all_items'           => __( 'All Books', 'my-super-cool-text-domain' ),
+				'view_item'           => __( 'View Book', 'my-super-cool-text-domain' ),
+				'add_new_item'        => __( 'Add New Book', 'my-super-cool-text-domain' ),
+				'add_new'             => __( 'New Book', 'my-super-cool-text-domain' ),
+				'edit_item'           => __( 'Edit Book', 'my-super-cool-text-domain' ),
+				'update_item'         => __( 'Update Book', 'my-super-cool-text-domain' ),
+				'search_items'        => __( 'Search books', 'my-super-cool-text-domain' ),
+				'not_found'           => __( 'No books found', 'my-super-cool-text-domain' ),
+				'not_found_in_trash'  => __( 'No books found in Trash', 'my-super-cool-text-domain' ),
+			);
+
+			$args = array(
+				'description'         	=> __( 'Books', 'my-super-cool-text-domain' ),
+				'labels'              	=> $labels,
+				'supports'            	=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
+				'taxonomies'          	=> null,
+				'hierarchical'        	=> false,
+				'public'              	=> true,
+				'show_ui'             	=> true,
+				'show_in_menu'        	=> true,
+				'show_in_nav_menus'   	=> true,
+				'show_in_admin_bar'   	=> true,
+				'menu_icon'           	=> null,
+				'can_export'          	=> true,
+				'has_archive'         	=> true,
+				'exclude_from_search' 	=> false,
+				'publicly_queryable'  	=> true,
+				'rewrite' 			  	=> array( 'slug' => 'books' ),
+				//this is supported in 3.6
+				'statuses'				=> array(
+					'draft' => array(
+						'label'                     => _x( 'New', 'book', 'my-super-cool-text-domain' ),
+						'public'                    => true,
+						'exclude_from_search'       => false,
+						'show_in_admin_all_list'    => true,
+						'show_in_admin_status_list' => true,
+						'label_count'               => _n_noop( 'New <span class="count">(%s)</span>', 'New <span class="count">(%s)</span>', 'my-super-cool-text-domain' )
+					)
+				)
+			);
+			
+			$this->assertEquals( $args, $this->_cpt->get_args( 'my-super-cool-text-domain' ) );
 		}
 	}
 }

@@ -103,7 +103,7 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 				$this->init( $uri, $txtdomain );
 				
 			if ( method_exists( $this, 'init_args' ) )
-				$this->init_args( $uri, $txtdomain );
+				$this->init_args( $txtdomain );
 			
 			if ( method_exists( $this, 'init_shortcodes' ) )
 	 			$this->init_shortcodes();
@@ -238,16 +238,15 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 		/**
 		 * Get the cpt arguments.
 		 *
-		 * @param string $uri The base plugin uri.
 		 * @param string $txtdomain The plugin text domain.
 		 * @return array $args
 		 * @access public
 		 * @since 0.1
 		 */
-		public function get_args( $uri, $txtdomain )
+		public function get_args( $txtdomain )
 		{				
 			if( ! isset( $this->args ) )
-				$this->init_args( $uri, $txtdomain );
+				$this->init_args( $txtdomain );
 			
 			return $this->args;
 		}
@@ -289,7 +288,7 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 		 *
 		 * @param string $uri The plugin uri.
 		 * @param string $txtdomain The plugin text domain.
-		 * @return void
+		 * @return object The registered post type object on success, WP_Error object on failure
 		 * @access public
 		 * @since 0.1
 		 */
@@ -298,7 +297,7 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 			if ( ! isset( $this->args ) )
 				$this->init_args( $uri, $txtdomain );
 			
-			register_post_type( $this->slug, $this->args );
+			return register_post_type( $this->slug, $this->args );
 		}
 		
 		/**

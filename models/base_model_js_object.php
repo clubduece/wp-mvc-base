@@ -213,6 +213,18 @@ if ( ! class_exists( 'Base_Model_JS_Object' ) ):
 		{
 			wp_dequeue_script( $this->_handle );
 		}
+		
+		/**
+		 * Deregister the script.
+		 *
+		 * @link http://codex.wordpress.org/Function_Reference/wp_deregister_script
+		 * @return void
+		 * @since 0.1
+		 */
+		public function deregister()
+		{
+			wp_deregister_script( $this->_handle );
+		}
 	}
 endif;
 ?>

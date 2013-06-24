@@ -28,7 +28,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 	 *
 	 * @package WPMVCBase\Controllers
 	 * @abstract
-	 * @version 0.1
+	 * @version 0.2
 	 * @since WP_Base 0.1
 	 */
 	abstract class Base_Controller_Plugin
@@ -329,29 +329,26 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 	 		$this->init();
 	 		
 	 		//add default WP action callbacks
-	 		add_action( 'init',						array( &$this, 'wp_init' ) );
-	 		add_action( 'admin_menu',				array( &$this, 'admin_menu' ) );
-	 		add_action( 'admin_init',				array( &$this, 'admin_init' ) );
-	 		add_action( 'admin_notices',			array( &$this, 'admin_notice' ) );
-	 		
-	 		//register our post updated messages
-	 		add_action( 'post_updated_messages', 	array( &$this, 'post_updated_messages' ), 5 );
+	 		//add_action( 'init',						array( &$this, 'wp_init' ) );
+	 		//add_action( 'admin_menu',				array( &$this, 'admin_menu' ) );
+	 		//add_action( 'admin_init',				array( &$this, 'admin_init' ) );
+	 		//add_action( 'admin_notices',			array( &$this, 'admin_notice' ) );
 	 		
 	 		//load the plugin text domain
-	 		add_action( 'plugins_loaded',			array( &$this, 'plugins_loaded' ) );
-	 		add_action( 'add_meta_boxes',			array( &$this, 'add_meta_boxes' ) );
+	 		//add_action( 'plugins_loaded',			array( &$this, 'plugins_loaded' ) );
+	 		//add_action( 'add_meta_boxes',			array( &$this, 'add_meta_boxes' ) );
 	 		
 	 		//enqueue scripts and css
-	 		add_action( 'admin_enqueue_scripts',	array( &$this, 'admin_enqueue_scripts' ) );
-	 		add_action( 'wp_enqueue_scripts',		array( &$this, 'wp_enqueue_scripts' ) );
+	 		//add_action( 'admin_enqueue_scripts',	array( &$this, 'admin_enqueue_scripts' ) );
+	 		//add_action( 'wp_enqueue_scripts',		array( &$this, 'wp_enqueue_scripts' ) );
 	 		
 	 		//post actions
-	 		add_action( 'the_post',					array( &$this, 'callback_the_post' ) );
-	 		add_action( 'save_post',				array( &$this, 'callback_save_post' ) );
-	 		add_action( 'delete_post',				array( &$this, 'callback_delete_post' ) );
+	 		//add_action( 'the_post',					array( &$this, 'callback_the_post' ) );
+ 			add_action( 'save_post',				array( &$this, 'callback_save_post' ) );	 			
+	 		//add_action( 'delete_post',				array( &$this, 'callback_delete_post' ) );
 	 		
 	 		//register the page load callback
-	 		add_action( "load-{$GLOBALS['pagenow']}", array( $this, 'load_admin_page' ), 10, 3 );
+	 		//add_action( "load-{$GLOBALS['pagenow']}", array( $this, 'load_admin_page' ), 10, 3 );
 	 		
 	 		//register our plugin activation/deactivation callbacks
 	 		register_activation_hook( $this->main_plugin_file,		array( &$this, 'activate_plugin' ) );
@@ -399,7 +396,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 					$this->add_shortcodes( $cpt->get_shortcodes() );
 					
 					//initialize the help screen tabs for the cpts
-					$help_screen = $cpt->get_help_screen( $this->app_views_path, $this->txtdomain );
+					$help_screen = $cpt->get_help_tabs( $this->app_views_path, $this->txtdomain );
 					if ( isset( $help_screen ) && is_array( $help_screen ) )
 						$this->help_tabs[$cpt->get_slug()] = $help_screen;
 				endforeach;
@@ -550,8 +547,30 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			//set up variables required for the view
 			$txtdomain = $this->txtdomain;
 			
-			//require the appropriate view for this metabox
-			require_once( $this->app_views_path . $metabox['args']['view'] );
+			//Is a view file specified for this metabox?
+			if ( isset( $metabox['args']['view'] ) ):
+				if ( file_exists( $this->app_views_path . $metabox['args']['view'] ) ):
+					//require the appropriate view for this metabox
+					include_once( $this->app_views_path . $metabox['args']['view'] );
+				else:
+					trigger_error(
+						sprintf(
+							__( 'The view file %s for metabox id %s does not exist', $this->txtdomain ),
+							$metabox['args']['view'],
+							$metabox['id']
+						),
+						E_USER_WARNING
+					);
+				endif;
+			else:
+				trigger_error(
+					sprintf(
+						__( 'No view specified in the callback arguments for metabox id %s', $this->txtdomain ),
+						$metabox['id']
+					),
+					E_USER_WARNING
+				);
+			endif;
 		}
 		
 		/**
@@ -567,11 +586,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 		{
 			global $post;
 			
-			if( is_array( $this->cpts ) ):
-				foreach( $this->cpts as $cpt ):
-					$messages[$cpt->get_slug()] = $cpt->get_post_updated_messages( $post, $this->txtdomain );
-				endforeach;
-			endif;
+			$messages[ $post->post_type ] = $this->cpts[ $post->post_type ]->get_post_updated_messages( $post, $this->txtdomain );
 						
 			return $messages;
 		}
@@ -686,27 +701,29 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			{
 				case 'post':
 					if ( method_exists( $this, 'the_post' ) )
-						$this->the_post( $post );
+						$post = $this->the_post( $post );
 					break;
 				case 'page':
 					if ( method_exists( $this, 'the_page' ) )
-						$this->the_page( $post );
+						$post = $this->the_page( $post );
 					break;
 				case 'attachment':
 					if ( method_exists( $this, 'the_attachment' ) )
-						$this->the_attachment( $post );
+						$post = $this->the_attachment( $post );
 					break;
 				default:
 					if( isset( $this->cpts ) ):
 						foreach($this->cpts as $cpt):
 							if ( $cpt->get_slug() == $post->post_type && method_exists( $cpt, 'the_post' ) ):
-								return $cpt->the_post( $post );
+								$post = $cpt->the_post( $post );
 								break;
 							endif;
 						endforeach;
 					endif;
 					break;
 			}
+			
+			return $post;
 		}
 		
 		/**
@@ -719,7 +736,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 		 */
 		public function callback_save_post( $post_id )
 		{
-			global $post_type;
+			$post_type = get_post_type( $post_id );
 			
 			// verify if this is an auto save routine. 
 			// If it is our form has not been submitted, so we dont want to do anything
@@ -727,7 +744,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 				return;
 				
 			// We need to check if the current user is authorised to do this action. 
-			if ( 'page' == $post_type ) {
+			if ( 'page' === $post_type ) {
 				if ( ! current_user_can( 'edit_page', $post_id ) )
 					return;
 			} else {
@@ -756,14 +773,9 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 						$this->save_data_attachment( $post_id );
 					break;
 				default:
-					if( isset( $this->cpts ) ):
-						foreach($this->cpts as $cpt):
-							if ( $cpt->get_slug() ==  $post_type && method_exists( $cpt, 'save' ) ):
-								$cpt->save( $_POST );
-								break;
-							endif;
-						endforeach;
-					endif;
+					if ( method_exists( $this->cpts[ $post_type ], 'save' ) )
+						$this->cpts[ $post_type ]->save( $_POST );
+					
 					break;
 			}
 		}
@@ -778,7 +790,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 		 */
 		public function callback_delete_post( $post_id )
 		{	
-			global $post_type;
+			$post_type = get_post_type( $post_id );
 			
 			// We need to check if the current user is authorised to do this action. 
 			if ( ! current_user_can( 'delete_post', $post_id ) )
@@ -1135,7 +1147,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			
 			if( isset ( $args['after'] ) && is_file( $args['after'] ) ):
 				ob_start();
-				require_once($args['after'] );
+				require( $args['after'] );
 				$args['after'] = ob_get_clean();
 			endif;
 			
@@ -1253,6 +1265,34 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 		public function get_textdomain()
 		{
 			return $this->txtdomain;
+		}
+		
+		/**
+		 * Add the cpt.
+		 *
+		 * Register the cpt, add the cpt scripts and styles, add the meta boxes and help screens.
+		 *
+		 * @since 0.2
+		 */
+		public function add_cpt( $cpt )
+		{
+			$this->cpts[ $cpt->get_slug() ] = $cpt;
+			add_action( 'init', array( &$cpt, 'register' ) );
+			add_action( 'add_meta_boxes', array( &$this, 'add_meta_boxes' ) );
+			//register the post updated messages
+	 		add_action( 'post_updated_messages', array( &$this, 'post_updated_messages' ), 5 );
+	 		
+	 		if ( method_exists( $cpt, 'the_post' ) )
+				add_action( 'the_post', array( &$this, 'callback_the_post' ) );
+			
+	 		if ( method_exists( $cpt, 'save_post' ) )
+				add_action( 'save_post', array( &$this, 'callback_save_post' ) );
+			
+			if ( method_exists( $cpt, 'delete_post' ) )
+				add_action( 'delete_post', array( &$this, 'callback_delete_post' ) );
+				
+			if( is_array( $cpt->get_help_tabs( $this->app_views_path, $this->txtdomain ) ) )
+				$this->help_tabs[ $cpt->get_slug() ] = $cpt->get_help_tabs( $this->app_views_path, $this->txtdomain );
 		}
 	}
 endif;

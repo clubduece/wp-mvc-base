@@ -3,6 +3,12 @@ namespace WPMVCBase\Testing
 {
 	require_once( dirname( __FILE__ ) . '../../../models/base_model.php' );
 	
+	/**
+	 * Base Model Test Stub
+	 *
+	 * @internal
+	 * @since 0.1
+	 */
 	class Test_Stub_Base_Model extends \Base_Model
 	{
 		public function __construct()
@@ -15,6 +21,12 @@ namespace WPMVCBase\Testing
 		}
 	}
 	
+	/**
+	 * Base Model Test Class
+	 *
+	 * @internal
+	 * @since 0.1
+	 */
 	class Test_Base_Model extends \WP_UnitTestCase
 	{
 		public function SetUp()

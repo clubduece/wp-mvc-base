@@ -41,9 +41,9 @@ if( ! class_exists( 'Base_Model' ) ):
 		 *
 		 * @package WPMVCBase\Models
 		 * @var string
-		 * @since 0.1
+		 * @since 0.2
 		 */
-		private $version = '0.1';
+		private $version = '0.2';
 			
 		/**
 		 * The plugin css files

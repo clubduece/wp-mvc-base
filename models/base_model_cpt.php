@@ -103,12 +103,6 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 			
 			if ( method_exists( $this, 'init' ) )
 				$this->init( $uri, $txtdomain );
-				
-			if ( method_exists( $this, 'init_args' ) )
-				$this->init_args( $txtdomain );
-			
-			if ( method_exists( $this, 'init_shortcodes' ) )
-	 			$this->init_shortcodes();
 		}
 		
 		
@@ -126,12 +120,11 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 			if ( ! isset( $this->messages ) && method_exists( $this, 'init_messages' ) )
 				$this->init_messages( $post, $this->txtdomain );
 				
-			if( ! isset( $this->messages ) ):
+			if( ! isset( $this->messages ) )
 				trigger_error( 
 					sprintf( __( 'CPT messages are not set for %s', $this->txtdomain ), get_class( $this ) ),
 					E_USER_WARNING 
 				);
-			endif;
 			
 			return $this->messages;
 		}
@@ -229,7 +222,7 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 			Helper_Functions::deprecated( __FUNCTION__, 'get_help_tabs', $this->txtdomain );
 			
 			//and point to the replacement function
-			return $this->help_tabs;
+			return $this->get_help_tabs( $path, $txtdomain );
 		}
 		
 		/**
@@ -262,7 +255,7 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 		 */
 		public function register()
 		{	
-			return register_post_type( $this->slug, $this->args );
+			return register_post_type( $this->slug, $this->get_args( $this->txtdomain ) );
 		}
 	 }
 endif;

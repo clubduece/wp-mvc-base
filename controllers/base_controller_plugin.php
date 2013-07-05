@@ -707,10 +707,6 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 					if ( method_exists( $this, 'the_page' ) )
 						$post = $this->the_page( $post );
 					break;
-				case 'attachment':
-					if ( method_exists( $this, 'the_attachment' ) )
-						$post = $this->the_attachment( $post );
-					break;
 				default:
 					if( isset( $this->cpts ) ):
 						foreach($this->cpts as $cpt):
@@ -768,10 +764,6 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 					if ( method_exists( $this, 'save_data_page' ) )
 						$this->save_data_page( $post_id );
 					break;
-				case 'attachment':
-					if ( method_exists( $this, 'save_data_attachment' ) )
-						$this->save_data_attachment( $post_id );
-					break;
 				default:
 					if ( method_exists( $this->cpts[ $post_type ], 'save' ) )
 						$this->cpts[ $post_type ]->save( $_POST );
@@ -807,10 +799,6 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 				case 'page':
 					if ( method_exists( $this, 'delete_data_page' ) )
 						$this->delete_data_page( $post_id );
-					break;
-				case 'attachment':
-					if ( method_exists( $this, 'delete_data_attachment' ) )
-						$this->delete_data_attachment( $post_id );
 					break;
 				default:
 					if( isset( $this->cpts ) ):

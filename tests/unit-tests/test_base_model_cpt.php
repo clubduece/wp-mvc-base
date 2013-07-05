@@ -137,7 +137,7 @@ namespace WPMVCBase\Testing
 	{
 		private $_factory;
 		private $_cpt;
-		private $_empty_cpt;
+		private $_cpt_empty;
 		private $_post;
 		
 		public function SetUp()
@@ -170,10 +170,26 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( array( 'my-super-cool-shortcode' => 'my-super-cool-callback' ), $this->_cpt->get_shortcodes() );
 		}
 		
-		public function test_get_help_screen()
+		public function test_get_help_screen_error()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt->get_help_screen( __FILE__, 'my-super-cool-text-domain' );
+		}
+		
+		public function test_get_help_screen_error_message()
+		{
+			@$this->_cpt->get_help_screen( __FILE__, 'my-super-cool-text-domain' );
+			$error = error_get_last();
+			
+			$this->assertEquals( 'DEPRECATED: The function get_help_screen is deprecated. Please use get_help_tabs instead.', $error['message'] );
+		}
+		
+		public function test_get_help_screen()
+		{
+			$this->assertEquals(
+				array(  'title' => 'My Help Screen', 'id' => 'demo-help', 'call' => 'my_callback_function' ),
+				@$this->_cpt->get_help_screen( __FILE__, 'my-super-cool-text-domain' )
+			);
 		}
 		
 		public function test_get_help_tabs()
@@ -280,31 +296,37 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( $args, $this->_cpt->get_args( 'my-super-cool-text-domain' ) );
 		}
 		
-		public function test_empty_slug()
+		public function test_empty_get_slug()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt_empty->get_slug();
 		}
 		
-		public function test_empty_metakey()
+		public function test_empty_get_metakey()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt_empty->get_metakey();
 		}
 		
-		public function test_empty_args()
+		public function test_empty_get_args()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt_empty->get_args( 'my-super-cool-text-domain' );
 		}
 		
-		public function test_empty_help_tabs()
+		public function test_empty_get_help_screen()
+		{
+			$this->setExpectedException( 'PHPUnit_Framework_Error' );
+			$this->_cpt_empty->get_help_screen( __FILE__, 'my-super-cool-text-domain' );
+		}
+		
+		public function test_empty_get_help_tabs()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt_empty->get_help_tabs();
 		}
 		
-		public function test_empty_messages()
+		public function test_empty_get_messages()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt_empty->get_post_updated_messages( 4, 'my-super-cool-text-domain' );

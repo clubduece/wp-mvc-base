@@ -99,12 +99,6 @@ namespace WPMVCBase\Testing
 			$post->foo = 'bar';
 			return $post;
 		}
-		
-		public function the_attachment( $post )
-		{
-			$post->foo = 'bar';
-			return $post;
-		}
 	}
 	
 	/**
@@ -373,12 +367,6 @@ namespace WPMVCBase\Testing
 			$this->assertObjectHasAttribute( 'foo', $post );
 		}
 		
-		public function test_callback_the_post_for_attachment()
-		{
-			$post = $this->_controller->callback_the_post( get_post( $this->_attachment ) );
-			$this->assertObjectHasAttribute( 'foo', $post );
-		}
-		
 		public function test_callback_the_post_for_cpt()
 		{
 			$post = $this->_controller->callback_the_post( get_post( $this->_cpt ) );
@@ -418,7 +406,6 @@ namespace WPMVCBase\Testing
 		{
 			//set up the post
 			global $post;
-			unset( $post );
 			$post = get_post( $this->_page );
 			setup_postdata( $post );
 			

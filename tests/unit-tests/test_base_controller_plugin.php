@@ -13,9 +13,15 @@ namespace WPMVCBase\Testing
 	 */
 	class Test_Stub_CPT extends \Base_Model_CPT
 	{
-		protected $slug = 'my-test-cpt';
-		
+		protected $slug = 'tbc-cpt';
 		public $help_tabs = array();
+		
+		public function init()
+		{
+			$this->shortcodes = array(
+				'tscshortcode' => array( &$this, 'tscshortcode' )
+			);
+		}
 		
 		public function save_post()
 		{
@@ -52,6 +58,58 @@ namespace WPMVCBase\Testing
 				10 => sprintf( __('Book draft updated. <a target="_blank" href="%s">Preview book</a>', 'your_text_domain'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID) ) ) )
 			);
 		}
+		protected function init_args()
+		{
+			$labels = array(
+				'name'                => _x( 'Books', 'Post Type General Name', 'my-super-cool-text-domain' ),
+				'singular_name'       => _x( 'Book', 'Post Type Singular Name', 'my-super-cool-text-domain' ),
+				'menu_name'           => __( 'Books', 'my-super-cool-text-domain' ),
+				'parent_item_colon'   => __( 'Parent Book', 'my-super-cool-text-domain' ),
+				'all_items'           => __( 'All Books', 'my-super-cool-text-domain' ),
+				'view_item'           => __( 'View Book', 'my-super-cool-text-domain' ),
+				'add_new_item'        => __( 'Add New Book', 'my-super-cool-text-domain' ),
+				'add_new'             => __( 'New Book', 'my-super-cool-text-domain' ),
+				'edit_item'           => __( 'Edit Book', 'my-super-cool-text-domain' ),
+				'update_item'         => __( 'Update Book', 'my-super-cool-text-domain' ),
+				'search_items'        => __( 'Search books', 'my-super-cool-text-domain' ),
+				'not_found'           => __( 'No books found', 'my-super-cool-text-domain' ),
+				'not_found_in_trash'  => __( 'No books found in Trash', 'my-super-cool-text-domain' ),
+			);
+
+			$this->args = array(
+				'description'         	=> __( 'Books', 'my-super-cool-text-domain' ),
+				'labels'              	=> $labels,
+				'supports'            	=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
+				'hierarchical'        	=> false,
+				'public'              	=> true,
+				'show_ui'             	=> true,
+				'show_in_menu'        	=> true,
+				'show_in_nav_menus'   	=> true,
+				'show_in_admin_bar'   	=> true,
+				'menu_icon'           	=> null,
+				'can_export'          	=> true,
+				'has_archive'         	=> true,
+				'exclude_from_search' 	=> false,
+				'publicly_queryable'  	=> true,
+				'rewrite' 			  	=> array( 'slug' => 'books' ),
+				//this is supported in 3.6
+				'statuses'				=> array(
+					'draft' => array(
+						'label'                     => _x( 'New', 'book', 'my-super-cool-text-domain' ),
+						'public'                    => true,
+						'exclude_from_search'       => false,
+						'show_in_admin_all_list'    => true,
+						'show_in_admin_status_list' => true,
+						'label_count'               => _n_noop( 'New <span class="count">(%s)</span>', 'New <span class="count">(%s)</span>', 'my-super-cool-text-domain' )
+					)
+				)
+			);
+		}
+		
+		public function my_super_cool_callback()
+		{
+			//implemented, but does nothing
+		}
 	}
 		
 	/**
@@ -75,7 +133,7 @@ namespace WPMVCBase\Testing
 		
 		public function get_cpt()
 		{
-			return $this->cpts[ 'my-test-cpt'];
+			return $this->cpts[ 'tbc-cpt'];
 		}
 		
 		public function the_post( $post )
@@ -108,7 +166,7 @@ namespace WPMVCBase\Testing
 	 * @since WPMVCBase 0.1
 	 * @internal
 	 */
-	class TestBaseControllerPlugin extends \WP_UnitTestCase
+	class Test_Base_Controller_Plugin extends \WP_UnitTestCase
 	{
 		private $_controller;
 		private $_post;
@@ -159,7 +217,7 @@ namespace WPMVCBase\Testing
 			$this->_cpt = $this->factory->post->create_object(
 				array(
 					'post_title' => 'Test Post',
-					'post_type' => 'my-test-cpt',
+					'post_type' => 'tbc-cpt',
 					'post_status' => 'publish'
 				)
 			);
@@ -355,6 +413,13 @@ namespace WPMVCBase\Testing
 			$this->assertClassHasAttribute( 'help_tabs', '\WPMVCBase\Testing\Test_Controller' );
 		}
 		
+		/*
+public function test_add_cpt_shortcodes()
+		{
+			$this->assertTrue( shortcode_exists( 'tscshortcode' ) );
+		}
+*/
+		
 		public function test_callback_the_post_for_post()
 		{
 			$post = $this->_controller->callback_the_post( get_post( $this->_post ) );
@@ -381,7 +446,7 @@ namespace WPMVCBase\Testing
 			$cpt = $this->_controller->get_cpt();
 			$messages = $this->_controller->post_updated_messages( $messages );
 			
-			$this->assertArrayHasKey( 'my-test-cpt', $messages );
+			$this->assertArrayHasKey( 'tbc-cpt', $messages );
 		}
 		
 		public function test_callback_save_post_for_post()

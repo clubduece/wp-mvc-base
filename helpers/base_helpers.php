@@ -17,61 +17,7 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 	 * @since WPMVCBase 0.1
 	 */
 	class Helper_Functions
-	{
-		
-		/**
-		 * Process files uploaded via plupload
-		 *
-		 * @package WPMVCBase\Helper Functions
-		 * @param array $post The $_POST object.
-		 * @param array $files The $_FILES object.
-		 * @param string $target The upload target absolute path.
-		 * @param bool $log Log the request. Default is false.
-		 * @since 0.1
-		 * @todo How does this handle mutliple files in the upload?
-		 * @todo Move this into a separate plupload helper
-		 */
-		/*
-public static function plupload( $post, $files, $target, $log = false )
-		{	
-			//ensure path ends with a slash
-			$target = trailingslashit( $target );
-			
-			//create directory if it does not exist
-			//if( !is_dir( $target ) ):
-				self::create_directory( $target );
-			//endif;
-			
-			if ( $post['name'] != '' && $files['file']['error'] == 0 ):
-				if ( isset( $post['chunk'] ) && $post['chunk'] > 0 ):
-					//combine the chunks into a temp file
-					
-					//open the destination file
-					$out = fopen( $target . '/' . sanitize_file_name( $post['name'] ), 'ab' );
-					
-					if( $out && is_uploaded_file( $files['file']['tmp_name'] ) ):
-						//open the input file
-						$in = fopen( $files['file']['tmp_name'], 'rb' );
-						if( $in ):
-							while ( $buff = fread( $in, 4096 ) )
-							fwrite( $out, $buff );
-						endif;
-					endif;
-				else:
-					move_uploaded_file( $files['file']['tmp_name'],  $target . sanitize_file_name( $post['name'] ) );
-				endif;
-			endif;	//$filename != '' && $file['error'][$i] == 0
-			
-			if ( $log ):
-				$handle = fopen( $target . 'upload_ajax.log', 'ab' );
-				fwrite($handle, '----------------------------------------------------' . "\n" );
-				fwrite($handle, date( 'm-d-Y g:i a' . "\n" ) );
-				fwrite($handle, "POST:\n" . var_export( $_POST, true ) . "FILES:\n" . var_export( $_FILES, true ) . "\n" );
-				fclose($handle);
-			endif;
-		}
-*/
-		
+	{	
 		/**
 		 * Enqueue styles.
 		 *
@@ -81,6 +27,7 @@ public static function plupload( $post, $files, $target, $log = false )
 		 *
 		 * @package WPMVCBase\Helper Functions
 		 * @param array $styles The collection of style objects to be enqueued.
+		 * @codeCoverageIgnore
 		 * @since 0.1
 		 */
 		public static function enqueue_styles( $styles )

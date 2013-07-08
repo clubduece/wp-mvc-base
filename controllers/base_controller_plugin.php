@@ -335,17 +335,17 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 	 		//add_action( 'admin_notices',			array( &$this, 'admin_notice' ) );
 	 		
 	 		//load the plugin text domain
-	 		//add_action( 'plugins_loaded',			array( &$this, 'plugins_loaded' ) );
+	 		add_action( 'plugins_loaded',			array( &$this, 'plugins_loaded' ) );
 	 		//add_action( 'add_meta_boxes',			array( &$this, 'add_meta_boxes' ) );
 	 		
 	 		//enqueue scripts and css
-	 		//add_action( 'admin_enqueue_scripts',	array( &$this, 'admin_enqueue_scripts' ) );
+	 		add_action( 'admin_enqueue_scripts',	array( &$this, 'admin_enqueue_scripts' ) );
 	 		//add_action( 'wp_enqueue_scripts',		array( &$this, 'wp_enqueue_scripts' ) );
 	 		
 	 		//post actions
-	 		//add_action( 'the_post',					array( &$this, 'callback_the_post' ) );
+	 		add_action( 'the_post',					array( &$this, 'callback_the_post' ) );
  			add_action( 'save_post',				array( &$this, 'callback_save_post' ) );	 			
-	 		//add_action( 'delete_post',				array( &$this, 'callback_delete_post' ) );
+	 		add_action( 'delete_post',				array( &$this, 'callback_delete_post' ) );
 	 		
 	 		//register the page load callback
 	 		//add_action( "load-{$GLOBALS['pagenow']}", array( $this, 'load_admin_page' ), 10, 3 );
@@ -700,12 +700,14 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			switch( $post->post_type )
 			{
 				case 'post':
-					if ( method_exists( $this, 'the_post' ) )
+					if ( method_exists( $this, 'the_post' ) ):
 						$post = $this->the_post( $post );
+					endif;
 					break;
 				case 'page':
-					if ( method_exists( $this, 'the_page' ) )
+					if ( method_exists( $this, 'the_page' ) ):
 						$post = $this->the_page( $post );
+					endif;
 					break;
 				default:
 					if( isset( $this->cpts ) ):
@@ -749,7 +751,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			}
 			
 			// Third we need to check if the user intended to change this value.
-			if ( ! isset( $_POST[$this->nonce_name] ) || ! wp_verify_nonce( $_POST[$this->nonce_name], $this->nonce_action ) )
+			if ( ! isset( $_POST[ $this->nonce_name ] ) || ! wp_verify_nonce( $_POST[ $this->nonce_name ], $this->nonce_action ) )
 				return;
 			
 			//If we made it this far, we can save the POST data
@@ -758,16 +760,15 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			{
 				case 'post':
 					if ( method_exists( $this, 'save_data_post' ) )
-						$this->save_data_post( $post_id );
+						return $this->save_data_post( $post_id );
 					break;
 				case 'page':
 					if ( method_exists( $this, 'save_data_page' ) )
-						$this->save_data_page( $post_id );
+						return $this->save_data_page( $post_id );
 					break;
 				default:
-					if ( method_exists( $this->cpts[ $post_type ], 'save' ) )
-						$this->cpts[ $post_type ]->save( $_POST );
-					
+					if ( isset( $this->cpts[ $post_type ] ) && method_exists( $this->cpts[ $post_type ], 'save' ) )
+						return $this->cpts[ $post_type ]->save( $_POST );
 					break;
 			}
 		}
@@ -794,17 +795,17 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			{
 				case 'post':
 					if ( method_exists( $this, 'delete_data_post' ) )
-						$this->delete_data_post( $post_id );
+						return $this->delete_data_post( $post_id );
 					break;
 				case 'page':
 					if ( method_exists( $this, 'delete_data_page' ) )
-						$this->delete_data_page( $post_id );
+						return $this->delete_data_page( $post_id );
 					break;
 				default:
 					if( isset( $this->cpts ) ):
 						foreach($this->cpts as $cpt):
-							if ( $cpt->get_slug() ==  $post->post_type && method_exists( $cpt, 'save' ) ):
-								$cpt->delete( $_POST );
+							if ( $cpt->get_slug() ==  $post_type && method_exists( $cpt, 'delete' ) ):
+								return $cpt->delete( $_POST );
 								break;
 							endif;
 						endforeach;
@@ -1279,8 +1280,12 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			if ( method_exists( $cpt, 'delete_post' ) )
 				add_action( 'delete_post', array( &$this, 'callback_delete_post' ) );
 				
-			if( is_array( $cpt->get_help_tabs( $this->app_views_path, $this->txtdomain ) ) )
+			if ( is_array( $cpt->get_help_tabs( $this->app_views_path, $this->txtdomain ) ) )
 				$this->help_tabs[ $cpt->get_slug() ] = $cpt->get_help_tabs( $this->app_views_path, $this->txtdomain );
+			
+			if ( is_array( $cpt->get_shortcodes() ) )
+				add_action( 'init', array( &$this, 'wp_init' ) );
+					
 		}
 	}
 endif;

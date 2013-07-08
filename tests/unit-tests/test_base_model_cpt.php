@@ -331,6 +331,12 @@ namespace WPMVCBase\Testing
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			$this->_cpt_empty->get_post_updated_messages( 4, 'my-super-cool-text-domain' );
 		}
+		
+		public function testRegister()
+		{
+			$this->_cpt->register();
+			$this->assertTrue( post_type_exists( $this->_cpt->get_slug() ) );
+		}
 	}
 } //namespace
 ?>

@@ -1,163 +1,10 @@
 <?php
-namespace WPMVCBase\Testing
+namespace WPMVCB\Testing
 {
-	require_once( dirname( __FILE__ ) . '../../../controllers/base_controller_plugin.php' );
-	require_once( dirname( __FILE__ ) . '../../../models/base_model_cpt.php' );
-	
-	/**
-	 * The stub CPT for the controller tests
-	 *
-	 * @package WPMVCBase_Testing\Unit_Tests
-	 * @since 0.2
-	 * @internal
-	 */
-	class Test_Stub_CPT extends \Base_Model_CPT
-	{
-		protected $slug = 'tbc-cpt';
-		public $help_tabs = array();
-		
-		public function init()
-		{
-			$this->shortcodes = array(
-				'tscshortcode' => array( &$this, 'tscshortcode' )
-			);
-		}
-		
-		public function save_post()
-		{
-			//implemented, but does nothing
-		}
-		
-		public function the_post( $post )
-		{
-			$post->foo = 'bar';
-			return $post;
-		}
-		
-		public function delete_post()
-		{
-			//implemented, but does nothing
-		}
-		
-		protected function init_messages( $post )
-		{
-			$this->messages = array(
-				0 => null, // Unused. Messages start at index 1.
-				1 => sprintf( __('Book updated. <a href="%s">View book</a>', 'your_text_domain'), esc_url( get_permalink( $post->ID) ) ),
-				2 => __('Custom field updated.', 'your_text_domain'),
-				3 => __('Custom field deleted.', 'your_text_domain'),
-				4 => __('Book updated.', 'your_text_domain'),
-				/* translators: %s: date and time of the revision */
-				5 => isset($_GET['revision']) ? sprintf( __('Book restored to revision from %s', 'your_text_domain'), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-				6 => sprintf( __('Book published. <a href="%s">View book</a>', 'your_text_domain'), esc_url( get_permalink($post->ID) ) ),
-				7 => __('Book saved.', 'your_text_domain'),
-				8 => sprintf( __('Book submitted. <a target="_blank" href="%s">Preview book</a>', 'your_text_domain'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID) ) ) ),
-				9 => sprintf( __('Book scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview book</a>', 'your_text_domain'),
-				  // translators: Publish box date format, see http://php.net/date
-				  date_i18n( __( 'M j, Y @ G:i' ), strtotime( $this->_post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
-				10 => sprintf( __('Book draft updated. <a target="_blank" href="%s">Preview book</a>', 'your_text_domain'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID) ) ) )
-			);
-		}
-		protected function init_args()
-		{
-			$labels = array(
-				'name'                => _x( 'Books', 'Post Type General Name', 'my-super-cool-text-domain' ),
-				'singular_name'       => _x( 'Book', 'Post Type Singular Name', 'my-super-cool-text-domain' ),
-				'menu_name'           => __( 'Books', 'my-super-cool-text-domain' ),
-				'parent_item_colon'   => __( 'Parent Book', 'my-super-cool-text-domain' ),
-				'all_items'           => __( 'All Books', 'my-super-cool-text-domain' ),
-				'view_item'           => __( 'View Book', 'my-super-cool-text-domain' ),
-				'add_new_item'        => __( 'Add New Book', 'my-super-cool-text-domain' ),
-				'add_new'             => __( 'New Book', 'my-super-cool-text-domain' ),
-				'edit_item'           => __( 'Edit Book', 'my-super-cool-text-domain' ),
-				'update_item'         => __( 'Update Book', 'my-super-cool-text-domain' ),
-				'search_items'        => __( 'Search books', 'my-super-cool-text-domain' ),
-				'not_found'           => __( 'No books found', 'my-super-cool-text-domain' ),
-				'not_found_in_trash'  => __( 'No books found in Trash', 'my-super-cool-text-domain' ),
-			);
-
-			$this->args = array(
-				'description'         	=> __( 'Books', 'my-super-cool-text-domain' ),
-				'labels'              	=> $labels,
-				'supports'            	=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
-				'hierarchical'        	=> false,
-				'public'              	=> true,
-				'show_ui'             	=> true,
-				'show_in_menu'        	=> true,
-				'show_in_nav_menus'   	=> true,
-				'show_in_admin_bar'   	=> true,
-				'menu_icon'           	=> null,
-				'can_export'          	=> true,
-				'has_archive'         	=> true,
-				'exclude_from_search' 	=> false,
-				'publicly_queryable'  	=> true,
-				'rewrite' 			  	=> array( 'slug' => 'books' ),
-				//this is supported in 3.6
-				'statuses'				=> array(
-					'draft' => array(
-						'label'                     => _x( 'New', 'book', 'my-super-cool-text-domain' ),
-						'public'                    => true,
-						'exclude_from_search'       => false,
-						'show_in_admin_all_list'    => true,
-						'show_in_admin_status_list' => true,
-						'label_count'               => _n_noop( 'New <span class="count">(%s)</span>', 'New <span class="count">(%s)</span>', 'my-super-cool-text-domain' )
-					)
-				)
-			);
-		}
-		
-		public function my_super_cool_callback()
-		{
-			//implemented, but does nothing
-		}
-	}
-		
-	/**
-	 * The stub controller for phpUnit tests.
-	 *
-	 * @package WPMVCBase_Testing\Unit_Tests
-	 * @since WPMVCBase 0.1
-	 * @internal
-	 */
-	class Test_Controller extends \Base_Controller_Plugin
-	{
-		//set up nonces to test form submits
-		public $nonce_name = '65fyvbuyfvboicigu';
-		public $nonce_action = 'save_post';
-		
-		public function init()
-		{
-			$cpt = new Test_Stub_CPT( 'http://example.com', 'my-txtdomain' );
-			$this->add_cpt( $cpt );
-		}
-		
-		public function get_cpt()
-		{
-			return $this->cpts[ 'tbc-cpt'];
-		}
-		
-		public function the_post( $post )
-		{
-			$post->foo = 'bar';
-			return $post;
-		}
-		
-		public function save_data_post( $post_id )
-		{	
-			update_post_meta( $post_id, 'foo', 'this is a post' );
-		}
-		
-		public function save_data_page( $post_id )
-		{
-			update_post_meta( $post_id, 'foo', 'this is a page' );
-		}
-		
-		public function the_page( $post )
-		{
-			$post->foo = 'bar';
-			return $post;
-		}
-	}
+	require_once( WPMVCB_SRC_DIR . '/controllers/base_controller_plugin.php' );
+	require_once( WPMVCB_SRC_DIR . '/models/base_model_js_object.php' );
+	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_cpt_model.php' );
+	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_plugin_controller.php' );
 	
 	/**
 	 * The test controller for Base_Controller_Plugin.
@@ -221,28 +68,71 @@ namespace WPMVCBase\Testing
 					'post_status' => 'publish'
 				)
 			);
+			
+			do_action( 'init' );
+			do_action( 'plugins_loaded' );
 		}
 		
+		public function testGetVersionExists()
+		{
+			$this->assertTrue( method_exists( $this->_controller, 'get_version' ) );
+		}
+		
+		/**
+		 * @depends testGetVersionExists
+		 */
 		public function testGetVersion()
 		{
 			$this->assertEquals( '1.0', $this->_controller->get_version() );
 		}
 		
+		public function testGetSlugExists()
+		{
+			$this->assertTrue( method_exists( $this->_controller, 'get_slug' ) );
+		}
+		
+		/**
+		 * @depends testGetSlugExists
+		 */
 		public function testGetSlug()
 		{
 			$this->assertEquals( 'my-super-cool-plugin', $this->_controller->get_slug() );
 		}
 		
+		public function testGetTextdomainExists()
+		{
+			$this->assertTrue( method_exists( $this->_controller, 'get_textdomain' ) );
+		}
+		
+		/**
+		 * @depends testGetTextdomainExists
+		 */
 		public function testGetTextdomain()
 		{
 			$this->assertEquals( 'my-super-cool-text-domain', $this->_controller->get_textdomain() );
 		}
 		
+		public function testMainPluginFileExists()
+		{
+			$this->assertTrue( method_exists( $this->_controller, 'main_plugin_file' ) );
+		}
+		
+		/**
+		 * @depends testMainPluginFileExists
+		 */
 		public function testMainPluginFile()
 		{
 			$this->assertEquals( '/home/user/public_html/wp-content/plugins/my-super-cool-plugin/my-super-cool-plugin.php', $this->_controller->main_plugin_file() );
 		}
 		
+		public function testRenderSettingsFieldExists()
+		{
+			$this->assertTrue( method_exists( $this->_controller, 'render_settings_field' ) );
+		}
+		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testRenderInputText()
 		{
 			$field = array(
@@ -260,6 +150,9 @@ namespace WPMVCBase\Testing
 			$this->_controller->render_settings_field( $field );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testReturnInputText()
 		{
 			$field = array(
@@ -280,6 +173,9 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( $expected, $this->_controller->render_settings_field( $field, 'noecho' ) );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testRenderInputCheckbox()
 		{
 			$field = array(
@@ -295,6 +191,9 @@ namespace WPMVCBase\Testing
 			$this->_controller->render_settings_field( $field );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testReturnInputCheckbox()
 		{
 			$field = array(
@@ -309,6 +208,9 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( $expected, $this->_controller->render_settings_field( $field, 'noecho' ) );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testRenderInputCheckboxChecked()
 		{
 			$field = array(
@@ -324,6 +226,9 @@ namespace WPMVCBase\Testing
 			$this->_controller->render_settings_field( $field );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testReturnInputCheckboxChecked()
 		{
 			$field = array(
@@ -338,6 +243,9 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( $expected, $this->_controller->render_settings_field( $field, 'noecho' ) );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testRenderInputSelect()
 		{
 			$field = array(
@@ -356,6 +264,9 @@ namespace WPMVCBase\Testing
 			$this->_controller->render_settings_field( $field );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
 		public function testReturnInputSelect()
 		{
 			$field = array(
@@ -373,52 +284,81 @@ namespace WPMVCBase\Testing
 			$this->assertEquals( $expected, $this->_controller->render_settings_field( $field, 'noecho' ) );
 		}
 		
-		public function test_add_cpt_register()
+		public function testAddCptExists()
+		{
+			$this->assertTrue( method_exists( $this->_controller, 'add_cpt' ) );
+		}
+		
+		/*
+		 * The following functions use the assertFalse because WP has_action may occasionally
+		 * return a non-boolean value that evaluates to false
+		 */
+		 
+		/**
+		 * @depends testAddCptExists
+		 */
+		public function testAddCptRegisterCallbackExists()
 		{
 			$cpt = $this->_controller->get_cpt();
 			$this->assertFalse( false === has_action( 'init', array( $cpt, 'register' ) ) );
 		}
 		
-		/*
-		 * The following functions use the assertFalse because WP has_action my occasionally
-		 * return a non-boolean value that evaluates to false
+		/**
+		 * @depends testAddCptExists
 		 */
 		public function test_add_cpt_add_meta_boxes()
 		{
 			$this->assertFalse( false === has_action( 'add_meta_boxes', array( $this->_controller, 'add_meta_boxes' ) ) );
 		}
 		
+		/**
+		 * @depends testAddCptExists
+		 */
 		public function test_add_cpt_add_post_updated_messages()
 		{
 			$this->assertFalse( false === has_action( 'post_updated_messages', array( $this->_controller, 'post_updated_messages' ) ) );
 		}
 		
+		/**
+		 * @depends testAddCptExists
+		 */
 		public function test_add_cpt_add_the_post()
 		{
 			$this->assertFalse( false === has_action( 'the_post', array( $this->_controller, 'callback_the_post' ) ) );
 		}
 		
+		/**
+		 * @depends testAddCptExists
+		 */
 		public function test_add_cpt_add_save_post()
 		{
 			$this->assertFalse( false === has_action( 'save_post', array( $this->_controller, 'callback_save_post' ) ) );
 		}
 		
+		/**
+		 * @depends testAddCptExists
+		 */
 		public function test_add_cpt_add_delete_post()
 		{
 			$this->assertFalse( false === has_action( 'delete_post', array( $this->_controller, 'callback_delete_post' ) ) );
 		}
 		
+		/**
+		 * @depends testAddCptExists
+		 */
 		public function test_add_cpt_help_tabs()
 		{
-			$this->assertClassHasAttribute( 'help_tabs', '\WPMVCBase\Testing\Test_Controller' );
+			$this->assertClassHasAttribute( 'help_tabs', '\WPMVCB\Testing\Test_Controller' );
 		}
 		
-		/*
-public function test_add_cpt_shortcodes()
+		/**
+		 * @depends testAddCptExists
+		 */
+		public function test_add_cpt_shortcodes()
 		{
-			$this->assertTrue( shortcode_exists( 'tscshortcode' ) );
+			//$this->assertTrue( shortcode_exists( 'tscshortcode' ) );
+			$this->markTestIncomplete( 'This test not yet implemented' );
 		}
-*/
 		
 		public function test_callback_the_post_for_post()
 		{
@@ -446,6 +386,7 @@ public function test_add_cpt_shortcodes()
 			$cpt = $this->_controller->get_cpt();
 			$messages = $this->_controller->post_updated_messages( $messages );
 			
+			$this->assertFalse( false === has_action( 'post_updated_messages', array( $this->_controller, 'post_updated_messages' ) ) );
 			$this->assertArrayHasKey( 'tbc-cpt', $messages );
 		}
 		
@@ -483,6 +424,81 @@ public function test_add_cpt_shortcodes()
 			
 			$meta = get_post_meta( $this->_page, 'foo', true );
 			$this->assertEquals( 'this is a page', $meta );
+		}
+		
+		public function test_callback_save_post_for_cpt()
+		{
+			//set up the post
+			global $post;
+			$post = get_post( $this->_cpt );
+			setup_postdata( $post );
+			
+			//set the current user to admin
+			wp_set_current_user( 1 );
+			
+			//set up the POST variables to emulate form submission
+			$GLOBALS['_POST'][ $this->_controller->nonce_name ] = wp_create_nonce( $this->_controller->nonce_action );
+			wp_update_post( array( 'ID' => $this->_cpt, 'content' => 'Flibbertygibbet' ) );
+			
+			$this->assertEquals( 'SAVE CPT', $this->_controller->callback_save_post( $this->_cpt ) );
+		}
+		
+		public function testAdminRegisterControllerScripts()
+		{
+			/*
+$this->_controller->admin_enqueue_scripts( 'post.php' );
+			$this->assertTrue( wp_script_is( 'fooscript', 'registered' ) );
+			$this->assertTrue( wp_script_is( 'fooscript', 'enqueued' ) );
+*/
+			$this->markTestIncomplete( 'This test not yet implemented' );
+		}
+		
+		public function testAdminRegisterCptScripts()
+		{
+			/*
+do_action( 'admin_init' );
+			
+			//set up the screen object
+			global $current_screen;
+			$current_screen->base = 'post';
+			$current_screen->id = 'post';
+			$current_screen->parent_base = 'edit';
+			$current_screen->parent_file = 'edit.php';
+			$current_screen->post_type = 'tbc-cpt';
+			
+			$this->_controller->admin_enqueue_scripts( 'post.php' );
+			$this->assertTrue( wp_script_is( 'barscript', 'registered' ) );
+			$this->assertTrue( wp_script_is( 'barscript', 'enqueued' ) );
+*/
+			$this->markTestIncomplete( 'This test not yet implemented' );
+		}
+		
+		public function testCallbackDeletePostExists()
+		{
+			$this->assertFalse( false === has_action( 'delete_post', array( $this->_controller, 'callback_delete_post' ) ) );
+		}
+		public function testCallbackDeletePost()
+		{
+			//set the current user to admin
+			wp_set_current_user( 1 );
+			
+			$this->assertEquals( 'DELETE DATA POST', $this->_controller->callback_delete_post( $this->_post ) );
+		}
+		
+		public function testCallbackDeletePage()
+		{
+			//set the current user to admin
+			wp_set_current_user( 1 );
+			
+			$this->assertEquals( 'DELETE DATA PAGE', $this->_controller->callback_delete_post( $this->_page ) );
+		}
+		
+		public function testCallbackDeleteCPT()
+		{
+			//set the current user to admin
+			wp_set_current_user( 1 );
+			
+			$this->assertEquals( 'DELETE CPT', $this->_controller->callback_delete_post( $this->_cpt ) );
 		}
 	}
 }

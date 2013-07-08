@@ -27,7 +27,6 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 		 *
 		 * @package WPMVCBase\Helper Functions
 		 * @param array $styles The collection of style objects to be enqueued.
-		 * @codeCoverageIgnore
 		 * @since 0.1
 		 */
 		public static function enqueue_styles( $styles )
@@ -35,14 +34,17 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 			foreach( $styles as $style ):
 				//filter the style object
 				$style = apply_filters( 'ah_base_filter_styles-' . $style['handle'], $style );
-				
-				wp_enqueue_style( 
-					$style['handle'],
-					$style['src'],
-					$style['deps'],
-					$style['ver'],
-					$style['media']
-				);
+				if ( isset( $style['src'] ) ):
+					wp_enqueue_style( 
+						$style['handle'],
+						$style['src'],
+						$style['deps'],
+						$style['ver'],
+						$style['media']
+					);
+				else:
+					wp_enqueue_style( $style['handle'] );
+				endif;
 			endforeach;
 		}
 		
@@ -50,12 +52,9 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 		 * Enqueue scripts.
 		 *
 		 * This function enqueues scripts using wp_enqueue_script.
-		 * It exposes a filter ( ah_base_filter_scripts-$style_handle ) that can be used to alter
-		 * the script object properties.
 		 *
 		 * @package WPMVCBase\Helper Functions
 		 * @param array $scripts The collection of script objects to be enqueued.
-		 * @todo Update filter to include all script elements.
 		 * @since 0.1
 		 */
 		public static function enqueue_scripts( $scripts )
@@ -104,12 +103,11 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 				if ( $files = scandir( $directory ) ):
 					foreach( $files as $entry ):
 						$filetype = wp_check_filetype( $entry );
-						//if( in_array( $filetype['ext'], $valid_types ) )
-							$contents[] = array(
-								'filename' 	=> $entry,
-								'filetype' 	=> $filetype['ext'],
-								'mimetype' 	=> $filetype['type']
-							);
+						$contents[] = array(
+							'filename' 	=> $entry,
+							'filetype' 	=> $filetype['ext'],
+							'mimetype' 	=> $filetype['type']
+						);
 					endforeach;
 				endif;
 				
@@ -124,7 +122,7 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 		 *
 		 * @package WPMVCBase
 		 * @param string $dirname The absolute path to the directory to be deleted.
-		 * @param bool $force Delete all folder contents recursively (true). Default FALSE.
+		 * @param bool $force Delete all folder contents recursively (TRUE). Default FALSE.
 		 * @return bool TRUE on success, FALSE on failure.
 		 * @since 0.1
 		 */
@@ -137,9 +135,9 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 				$it = new RecursiveDirectoryIterator( $dirname );
 				$files = new RecursiveIteratorIterator( $it, RecursiveIteratorIterator::CHILD_FIRST );
 				foreach( $files as $file ):
-				    if ($file->getFilename() === '.' || $file->getFilename() === '..') {
-				        continue;
-				    }
+					if ( $file->getFilename() === '.' || $file->getFilename() === '..' ) {
+						continue;
+					}
 				    if ( $file->isDir() ){
 				        rmdir( $file->getRealPath() );
 				    } else {
@@ -164,8 +162,9 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 		{
 			self::deprecated( 'delete_local_file', 'PHP unlink' );
 			
-			if( file_exists( $file ) )
+			if( file_exists( $file ) ) {
 				return unlink( $file );
+			}
 		}
 		
 		/**

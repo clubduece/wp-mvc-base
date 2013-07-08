@@ -15,6 +15,8 @@ namespace WPMVCBase\Testing
 				'Here is some test tab content',
 				array( &$this, 'help_tab_callback' )
 			);
+			
+			$this->_reflection = new \ReflectionClass( $this->_tab );
 		}
 		
 		public function mock_callback()
@@ -90,6 +92,23 @@ namespace WPMVCBase\Testing
 		public function test_set_callback()
 		{
 			$this->assertTrue( $this->_tab->set_callback( array( &$this, 'mock_callback' ) ) );
+			$callback = $this->_reflection->getProperty( '_callback' );
+			$callback->setAccessible( true );
+			$this->assertEquals( array( &$this, 'mock_callback' ), $callback->getValue( $this->_tab ) );
+		}
+		
+		public function testSetContent()
+		{
+			$content = $this->_reflection->getProperty( '_content' );
+			$content->setAccessible( true );
+			
+			$this->_tab->set_content( 'foo' );
+			$this->assertEquals( 'foo', $content->getValue( $this->_tab ) );
+		}
+		
+		public function testAdd()
+		{
+			$this->markTestIncomplete( 'This test not yet implemented' );
 		}
 	}
 }

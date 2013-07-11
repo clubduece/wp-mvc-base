@@ -22,6 +22,7 @@
 	],
 	"require-dev": {
 	    "satooshi/php-coveralls": "dev-master",
-	    "sebastianbergmann/phpcov": "1.1.0"
+	    "sebastianbergmann/phpcov": "1.1.0",
+	    "mikey179/vfsStream": "1.2.0"
 	}
 }

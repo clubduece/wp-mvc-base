@@ -1,6 +1,11 @@
 <?php
 namespace WPMVCB\Testing
 {
+	require_once( WPMVCB_SRC_DIR . '/controllers/base_controller_plugin.php' );
+	require_once( WPMVCB_SRC_DIR . '/models/base_model_js_object.php' );
+	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_model_settings.php' );
+	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_cpt_model.php' );
+	
 	/**
 	 * The stub controller for phpUnit tests.
 	 *
@@ -20,6 +25,11 @@ namespace WPMVCB\Testing
 			$this->add_cpt( $cpt );
 			$this->admin_scripts = array(
 				new \Base_Model_JS_Object( 'fooscript', 'http://example.com/fooscript.js', null, false, false )
+			);
+			$this->settings_model = new TestStubModelSettings(
+				'http://example.com',
+				'/home/user/public_html/wp-content/plugins/my-super-cool-plugin',
+				'footxtdomain'
 			);
 		}
 		

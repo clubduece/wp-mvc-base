@@ -310,28 +310,32 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 	 	 */
 		public function __construct( $slug, $version, $path, $file, $uri, $txtdomain )
 	 	{
-	 		$this->slug = 					$slug;
-	 		$this->version = 				$version;
-	 		$this->main_plugin_file = 		$file;
-	 		$this->path = 					trailingslashit( $path );
-	 		$this->app_path = 				$this->path . 'app/';
-	 		$this->app_controllers_path = 	$this->app_path . 'controllers/';
-	 		$this->app_models_path = 		$this->app_path . 'models/';
-	 		$this->app_views_path = 		$this->app_path . 'views/';
-	 		$this->base_path = 				trailingslashit( dirname( dirname( __FILE__ ) ) );
-	 		$this->base_controllers_path = 	$this->base_path . 'controllers/';
-	 		$this->base_models_path =		$this->base_path . 'models/';
-	 		$this->base_views_path =		$this->base_path . 'views/';
-	 		$this->uri =					trailingslashit( $uri );
-	 		$this->js_uri =					$this->uri . 'js/';
-	 		$this->css_uri =				$this->uri . 'css/';
-	 		$this->txtdomain =				$txtdomain;
+	 		$this->slug                     = $slug;
+	 		$this->version                  = $version;
+	 		$this->main_plugin_file         = $file;
+	 		$this->path                     = trailingslashit( $path );
+	 		$this->app_path                 = $this->path . 'app/';
+	 		$this->app_controllers_path     = $this->app_path . 'controllers/';
+	 		$this->app_models_path          = $this->app_path . 'models/';
+	 		$this->app_views_path           = $this->app_path . 'views/';
+	 		$this->base_path                = trailingslashit( dirname( dirname( __FILE__ ) ) );
+	 		$this->base_controllers_path	= $this->base_path . 'controllers/';
+	 		$this->base_models_path         = $this->base_path . 'models/';
+	 		$this->base_views_path          = $this->base_path . 'views/';
+	 		$this->uri                      = trailingslashit( $uri );
+	 		$this->js_uri                   = $this->uri . 'js/';
+	 		$this->css_uri                  = $this->uri . 'css/';
+	 		$this->txtdomain                = $txtdomain;
+	 		
 	 		$this->init();
 	 		
 	 		//add default WP action callbacks
 	 		//add_action( 'init',						array( &$this, 'wp_init' ) );
-	 		//add_action( 'admin_menu',				array( &$this, 'admin_menu' ) );
-	 		//add_action( 'admin_init',				array( &$this, 'admin_init' ) );
+	 		if ( isset( $this->settings_model ) ):
+		 		add_action( 'admin_menu',				array( &$this, 'admin_menu' ) );
+		 		add_action( 'admin_init',				array( &$this, 'admin_init' ) );
+		 	endif;
+		 	
 	 		//add_action( 'admin_notices',			array( &$this, 'admin_notice' ) );
 	 		
 	 		//load the plugin text domain
@@ -586,8 +590,10 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 		{
 			global $post;
 			
-			$messages[ $post->post_type ] = $this->cpts[ $post->post_type ]->get_post_updated_messages( $post, $this->txtdomain );
-						
+			if ( isset( $this->cpts[ $post->post_type ] ) && method_exists( $this->cpts[ $post->post_type ], 'get_post_updated_messages' ) ):	
+				$messages[ $post->post_type ] = $this->cpts[ $post->post_type ]->get_post_updated_messages( $post, $this->txtdomain );
+			endif;
+									
 			return $messages;
 		}
 		
@@ -759,16 +765,19 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			switch( $post_type )
 			{
 				case 'post':
-					if ( method_exists( $this, 'save_data_post' ) )
+					if ( method_exists( $this, 'save_data_post' ) ) {
 						return $this->save_data_post( $post_id );
+					}
 					break;
 				case 'page':
-					if ( method_exists( $this, 'save_data_page' ) )
+					if ( method_exists( $this, 'save_data_page' ) ) {
 						return $this->save_data_page( $post_id );
+					}
 					break;
 				default:
-					if ( isset( $this->cpts[ $post_type ] ) && method_exists( $this->cpts[ $post_type ], 'save' ) )
+					if ( isset( $this->cpts[ $post_type ] ) && method_exists( $this->cpts[ $post_type ], 'save' ) ) {
 						return $this->cpts[ $post_type ]->save( $_POST );
+					}
 					break;
 			}
 		}
@@ -979,6 +988,13 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 						$page['hook_suffix'] = add_menu_page( $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'], $page['icon_url'], $page['position'] );
 					else:
 						$page['hook_suffix'] = add_submenu_page( $page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'] );
+					endif;
+					
+					if ( false === $page['hook_suffix'] ):
+						trigger_error( 
+							sprintf( __( 'Unable to add submenu page due to insufficient user capability: %s.', $this->txtdomain ), $key ),
+							E_USER_WARNING
+						);
 					endif;
 					
 					//update the page element with these new properites
@@ -1205,6 +1221,29 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			endif;
 			
 			return $html;
+		}
+		
+		/**
+		 * Display or return a text area input
+		 *
+		 * @param array $args The field arguments.
+		 * @param string $echo Echo the html or return it ( noecho ).
+		 * @access private
+		 * @since 0.2
+		 */
+		private function _render_input_textarea( $args, $echo = 'echo' )
+		{
+			$html = sprintf( '<textarea id="%1$s" name="%2$s">%3$s</textarea>',
+				$args['id'],
+				$args['name'],
+				$args['value']
+			);
+			
+			if ( 'echo' === $echo ):
+				echo $html;
+			else:
+				return $html;
+			endif;
 		}
 		
 		/**

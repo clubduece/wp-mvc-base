@@ -1,10 +1,7 @@
 <?php
 namespace WPMVCB\Testing
 {
-	require_once( WPMVCB_SRC_DIR . '/controllers/base_controller_plugin.php' );
-	require_once( WPMVCB_SRC_DIR . '/models/base_model_js_object.php' );
-	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_cpt_model.php' );
-	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_plugin_controller.php' );
+	require_once( WPMVCB_TEST_DIR . '/includes/test_stub_plugin_controller.php' );	
 	
 	/**
 	 * The test controller for Base_Controller_Plugin.
@@ -69,7 +66,8 @@ namespace WPMVCB\Testing
 				)
 			);
 			
-			do_action( 'init' );
+			wp_set_current_user( 1 );
+			//do_action( 'init' );
 			do_action( 'plugins_loaded' );
 		}
 		
@@ -123,6 +121,108 @@ namespace WPMVCB\Testing
 		public function testMainPluginFile()
 		{
 			$this->assertEquals( '/home/user/public_html/wp-content/plugins/my-super-cool-plugin/my-super-cool-plugin.php', $this->_controller->main_plugin_file() );
+		}
+		
+		/**
+		 * Test for admin_init action hook
+		 *
+		 * Because $this->_controller has a settings model, the admin_init function should be hooked.
+		 *
+		 * @since 0.1
+		 */
+		public function testAdminInitActionExists()
+		{
+			$this->assertFalse( false === has_action( 'admin_init', array( $this->_controller, 'admin_init' ) ) );
+		}
+		
+		/**
+		 * Test for admin_menu action hook
+		 *
+		 * Because $this->_controller has a settings model, the admin_menu function should be hooked.
+		 *
+		 * @since 0.1
+		 */
+		public function testAdminMenuActionExists()
+		{
+			$this->assertFalse( false === has_action( 'admin_menu', array( $this->_controller, 'admin_menu' ) ) );
+		}
+		
+		/**
+		 * @depends testAdminInitActionExists
+		 */
+		public function testRegisterOptions()
+		{	
+			ob_start();
+			settings_fields( 'test_options' );
+			$output = ob_get_clean();
+
+			$this->assertStringStartsWith( 
+				"<input type='hidden' name='option_page' value='test_options' />",
+				$output
+			);
+		}
+		
+		/**
+		 *
+		 * This test should trigger an error due to the 'my-fake-submenu-page' set in the
+		 * testStubSettingsModel class.
+		 *
+		 * @depends testAdminMenuActionExists
+		 * @expectedException PHPUnit_Framework_Error
+		 * @exectedExceptionMessage Unable to add submenu page due to insufficient user capability: my-fake-submenu-page
+		 */
+		public function testAddMenuPages()
+		{
+			if( ! did_action( 'admin_init' ) ) {
+				do_action( 'admin_init' );
+				do_action( 'admin_menu' );
+			}
+			
+			//set up a reflection of $this->_controller to access the settings_model property
+			$reflection = new \ReflectionClass( $this->_controller );
+			$settings_model_reflection = $reflection->getProperty( 'settings_model' );
+			$settings_model_reflection->setAccessible( true );
+			$settings_model = $settings_model_reflection->getValue( $this->_controller );
+			
+			//set up a reflection of $settings_model
+			$reflection = new \ReflectionClass( $settings_model );
+			$pages_reflection = $reflection->getProperty( 'pages' );
+			$pages_reflection->setAccessible( true );
+			$pages = $pages_reflection->getValue( $settings_model );
+			
+			$this->assertEquals( 'toplevel_page_my-page-slug', $pages['my-page-slug']['hook_suffix'] );
+			$this->assertEquals( 'my-page-menu-title_page_my-submenu-page-slug', $pages['my-submenu-page-slug']['hook_suffix'] );
+		}
+		
+		/**
+		 * @depends testAdminInitActionExists
+		 */
+		public function testAddSettingsSections()
+		{
+			if( ! did_action( 'admin_init' ) ) {
+				do_action( 'admin_init' );
+				do_action( 'admin_menu' );
+			}
+			
+			global $wp_settings_sections;
+			$this->assertArrayHasKey( 'my-page-slug', $wp_settings_sections );
+			$this->assertArrayHasKey( 'my-settings-section', $wp_settings_sections['my-page-slug'] );
+		}
+		
+		public function testAddSettingsFields()
+		{
+			if( ! did_action( 'admin_init' ) ) {
+				do_action( 'admin_init' );
+				do_action( 'admin_menu' );
+			}
+			
+			global $wp_settings_fields;
+			
+			$this->assertArrayHasKey(
+				'my-settings-field',
+				$wp_settings_fields['my-page-slug']['my-settings-section']
+			);
+			
 		}
 		
 		public function testRenderSettingsFieldExists()
@@ -284,6 +384,37 @@ namespace WPMVCB\Testing
 			$this->assertEquals( $expected, $this->_controller->render_settings_field( $field, 'noecho' ) );
 		}
 		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
+		public function testRenderTextarea()
+		{
+			$field = array(
+				'type'		=> 'textarea',
+				'id'		=> 'my-super-cool-textarea',
+				'name'		=> 'my_super_cool_textarea',
+				'value'		=> 'My textarea content'
+			);
+			$expected = '<textarea id="my-super-cool-textarea" name="my_super_cool_textarea">My textarea content</textarea>';
+			$this->expectOutputString( $expected );
+			$this->_controller->render_settings_field( $field, 'echo' );
+		}
+		
+		/**
+		 * @depends testRenderSettingsFieldExists
+		 */
+		public function testReturnTextarea()
+		{
+			$field = array(
+				'type'		=> 'textarea',
+				'id'		=> 'my-super-cool-textarea',
+				'name'		=> 'my_super_cool_textarea',
+				'value'		=> 'My textarea content'
+			);
+			$expected = '<textarea id="my-super-cool-textarea" name="my_super_cool_textarea">My textarea content</textarea>';
+			$this->assertEquals( $expected, $this->_controller->render_settings_field( $field, 'noecho' ) );
+		}
+		
 		public function testAddCptExists()
 		{
 			$this->assertTrue( method_exists( $this->_controller, 'add_cpt' ) );
@@ -428,6 +559,8 @@ namespace WPMVCB\Testing
 		
 		public function test_callback_save_post_for_cpt()
 		{
+			do_action( 'init' );
+			
 			//set up the post
 			global $post;
 			$post = get_post( $this->_cpt );

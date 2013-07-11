@@ -30,7 +30,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 *
 		 * Contains an array of option objects in key/value pairs. Example:
 		 * <code>
-		 * $this->option_groups = array(
+		 * $this->options = array(
 		 * 		'handle' => array(
 		 * 			'option_group' =>	'my_option_group_name',
 		 * 			'option_name' =>	'my_option_name',	//This will be used as the option key in the wp_options table
@@ -64,7 +64,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 * 								@see Base_Controller_Plugin::$scripts for elements
 		 * 			),
 		 * 			'help_screen'	=> array (
-		 * 								new Base_Model_Help_Tab( ... )
+		 * 								@see Base_Model_Help_Tab for elements
 		 * 			)
 		 *		),...
 		 * );
@@ -127,7 +127,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 * 				'label_for' => __( 'My Custom Label', 'mytextdomain' ), //optional
 		 * 				'type'		=> '$fieldtype', //Required if using the default render method. Can be checkbox, select, text, textarea
 		 * 				'id'		=> 'my-settings-field', //Required if using the default render method.
-		 *				'name'		=> 'my_option_name[my_settings_field]' //This MUST match the option name specified in the corresponding $options object. Required if using the default render method.
+		 *				'name'		=> 'my_option_name[my_settings_field]', //This MUST match the option name specified in the corresponding $options object. Required if using the default render method.
 		 *				'value'		=> $this->get_settings( 'my_option_name', 'my_settings_field' ) //Required if using the default render method.
 		 * 			)
 		 * 		), ...

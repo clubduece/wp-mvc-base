@@ -13,9 +13,11 @@
 	<h2><?php echo $page['page_title'] ?></h2>			
 	<form action="options.php" method="post">
 			<?php
-			foreach( $options as $key => $option):
-				settings_fields( $option['option_group'] );
-			endforeach;
+			if( isset( $options ) && count( $options ) > 0 ):
+				foreach( $options as $key => $option):
+					settings_fields( $option['option_group'] );
+				endforeach;
+			endif;
 			?>
 		<fieldset>
 			<?php do_settings_sections( $page['menu_slug'] ); ?>

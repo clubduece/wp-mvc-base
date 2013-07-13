@@ -1,6 +1,7 @@
 <?php
 namespace WPMVCB\Testing
 {
+	require_once( WPMVCB_SRC_DIR . '/models/base_model_js_object.php' );	
 	require_once( WPMVCB_SRC_DIR . '/models/base_model_settings.php' );
 	
 	class TestStubModelSettings extends \Base_Model_Settings

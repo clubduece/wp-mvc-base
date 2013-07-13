@@ -23,7 +23,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 * @var string
 		 * @since 0.1
 		 */
-		private $version = '0.1';
+		private $version = '0.2';
 		
 		/**
 		 * The plugin options. 
@@ -41,33 +41,30 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 *
 		 * @var array
 		 * @since 0.1
+		 * @link http://codex.wordpress.org/Function_Reference/register_setting#Parameters
 		 */
 		protected $options;
 		
 		/**
 		 * The options pages.
 		 *
-		 * Contains an array of page elements. These items are added to the WP Dashboard Sidebar. The key should match the menu_slug property.
+		 * Contains an array of Base_Model_Menu_Page objects. 
 		 * Example:
 		 * <code>
-		 * $this->pages = array(
-		 * 		'my-page-slug' => array(
-		 * 			'parent_slug'	=> 'my-menu-page',	//See below
-		 * 			'page_title'	=>	__( 'My Page Title', 'mytextdomain' ),
-		 * 			'menu_title'	=>	__( 'My Submenu Title', 'mytextdomain' ),
-		 * 			'capability'	=>	'manage_posts',
-		 * 			'menu_slug'		=> 'my-page-slug',
-		 * 			'callback'		=> 'my_page_slug.php',	//The view file name. Can be anything. Will be prepended with the plugin view path.
-		 * 			'icon_url'		=> 'my-icon.png',	//this property is ignored for submenu pages
-		 * 			'position'		=> 100,			//this property is ignored for submenu pages
-		 * 			'js'			=> array (
-		 * 								@see Base_Controller_Plugin::$scripts for elements
-		 * 			),
-		 * 			'help_screen'	=> array (
-		 * 								@see Base_Model_Help_Tab for elements
-		 * 			)
-		 *		),...
-		 * );
+		 * $page => new Base_Model_Menu_Page;
+		 * $page->set_parent_slug( 'my-menu-page' );
+		 * $page->set_page_title( __( 'My Page Title', 'mytextdomain' ) );
+		 * $page->set_menu_title( __( 'My Submenu Title', 'mytextdomain' ) );
+		 * $page->set_capability( 'manage_posts' );
+		 * $page->set_menu_slug( 'my-page-slug' );
+		 * $page->set_callback( 'my_callback' );
+		 * $page->set_icon_url(	'my-icon.png' );
+		 * $page->set_position( '100.12345' );
+		 * $page->set_admin_scripts( array ( @see Base_Model_JS_Object ) );
+		 * $page->set_help_tabs( array ( @see Base_Model_Help_Tab ) );
+		 * $page->set_view( 'my_page_slug.php' );
+		 * 
+		 * $this->pages = array( 'my_page_slug' => $page );
 		 * </code>
 		 *
 		 * If the parent_slug property is specified, the page will be added using the WP add_submenu_page function. 
@@ -75,8 +72,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 *
 		 * @var array
 		 * @since 0.1
-		 * @link http://codex.wordpress.org/Function_Reference/add_menu_page
-		 * @link http://codex.wordpress.org/Function_Reference/add_submenu_page
+		 * @see Base_Model_Menu_Page
 		 */
 		protected $pages;
 		
@@ -178,6 +174,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 * @param string $uri The plugin base uri.
 		 * @param string $path The plugin absoulte path.
 		 * @param string $txtdomain The plugin text domain. Used to localize section/field headings, titles, etc.
+		 * @codeCoverageIgnore
 		 * @since 0.1
 		 */
 		abstract protected function init( $uri, $path, $txtdomain );
@@ -194,8 +191,12 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		{
 			//load up our current settings
 			if( isset( $this->options ) ):
-				foreach( $this->options as $option ):
-					$this->settings[$option['option_name']] = get_option( $option['option_name'] );
+				foreach( $this->options as $key => $option ):
+					if( isset( $option['option_name'] ) ):
+						$this->settings[$option['option_name']] = get_option( $option['option_name'] );
+					else:
+						$this->settings[ $key ] = get_option( $key );
+					endif;
 				endforeach;
 			endif;
 		}
@@ -231,7 +232,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 */
 		public function get_settings_sections( $key = null )
 		{
-			if ( ! is_null( $key ) ):
+			if ( isset( $key ) ):
 				if ( isset( $this->settings_sections[$key] ) ):
 					return $this->settings_sections[$key];
 				else:
@@ -297,7 +298,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 */
 		public function get_settings( $option_name = null, $option_element = null )
 		{
-			if( ! isset( $this-> settings ) )
+			if( ! isset( $this->settings ) )
 				$this->init_settings();
 			
 			//Was a specific setting requested?
@@ -306,21 +307,62 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 			else:
 				//Was a specific element requested?
 				if( is_null( $option_element ) ):
-					//no
-					return $this->settings[$option_name];
-				else:
-					//a specfic option was requested
-					if ( isset( $this->settings[$option_name][$option_element] ) ):
-						return $this->settings[$option_name][$option_element];
+					//return the option group
+					if ( isset( $this->settings[ $option_name ] ) ):
+						return $this->settings[ $option_name ];
 					else:
-						//Return the default value if specified. Otherwise FALSE.
-						if( isset( $this->settings_fields[$option_element]['default'] ) ):
-							return $this->settings_fields[$option_element]['default'];
+						return false;
+					endif;
+				else:
+					//a specfic option in the option group was requested
+					if ( is_array( $this->settings[ $option_name ] ) ):
+						//option is a serialized array and the requested element might exist
+						if ( isset( $this->settings[ $option_name ][ $option_element ] ) ):
+							return $this->settings[ $option_name ][ $option_element ];
 						else:
-							return false;
+							//Return the default value if specified. Otherwise FALSE.
+							if( isset( $this->settings_fields[ $option_element ]['default'] ) ):
+								return $this->settings_fields[ $option_element ]['default'];
+							else:
+								return false;
+							endif;
 						endif;
+					else:
+						//the requested option is a single value and has no elements
+						trigger_error(
+							__( 'You have requested an element of an option that is stored as a single key/value pair.', 'wpmvcb' ),
+							E_USER_NOTICE
+						);
+						return false;
 					endif;
 				endif;
+			endif;
+		}
+		
+		/**
+		 * Add an option.
+		 *
+		 * @param array $option
+		 * @since 0.2
+		 */
+		public function add_option( $option )
+		{
+			if( ! is_array( $option ) ) :
+				trigger_error(
+					sprintf(
+						__( 'Method %s expects an array. The passed in parameter is of type: %s', 'wpmvcb' ),
+						__FUNCTION__,
+						gettype( $option )
+					),
+					E_USER_NOTICE
+				);
+				return false;
+			else:
+				if ( ! is_array( $this->options ) )
+					$this->options = array();
+				
+				$this->options = array_merge( $this->options, $option );
+				return true;
 			endif;
 		}
 		
@@ -333,7 +375,23 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 */
 		public function add_settings_section( $section )
 		{
-			$this->settings_sections = array_merge( $this->settings_sections, $section );
+			if( ! is_array( $section ) ) :
+				trigger_error(
+					sprintf(
+						__( 'Method %s expects an array. The passed in parameter is of type: %s', 'wpmvcb' ),
+						__FUNCTION__,
+						gettype( $section )
+					),
+					E_USER_NOTICE
+				);
+				return false;
+			else:
+				if ( ! is_array( $this->settings_sections ) )
+					$this->settings_sections = array();
+				
+				$this->settings_sections = array_merge( $this->settings_sections, $section );
+				return true;
+			endif;
 		}
 		
 		/**
@@ -343,9 +401,25 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 * @return void
 		 * @since 0.1
 		 */
-		public function add_settings_field( $settings )
+		public function add_settings_field( $field )
 		{
-			$this->settings_fields = array_merge( $this->settings_fields, $settings );
+			if( ! is_array( $field ) ) :
+				trigger_error(
+					sprintf(
+						__( 'Method %s expects an array. The passed in parameter is of type: %s', 'wpmvcb' ),
+						__FUNCTION__,
+						gettype( $field )
+					),
+					E_USER_NOTICE
+				);
+				return false;
+			else:
+				if ( ! is_array( $this->settings_fields ) )
+					$this->settings_fields = array();
+				
+				$this->settings_fields = array_merge( $this->settings_fields, $field );
+				return true;
+			endif;
 		}
 		
 		/**
@@ -364,6 +438,8 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 				foreach( $input as $key => $value ):
 					$input[$key] = sanitize_text_field( $value );
 				endforeach;
+			else:
+				$input = sanitize_text_field( $input );
 			endif;
 			
 			return $input;

@@ -1,5 +1,5 @@
 <?php
-namespace WPMVCBase\Testing
+namespace WPMVCB\Testing
 {
 	require_once( dirname( __FILE__ ) . '../../../models/base_model_js_object.php' );
 	
@@ -10,12 +10,13 @@ namespace WPMVCBase\Testing
 	 * @since WPMVCBase 0.1
 	 * @internal
 	 */
-	class TestBaseModelJsObject extends \WP_UnitTestCase
+	class TestBaseModelJsObject extends WPMVCB_Test_Case
 	{
 		private $_script;
 		
 		public function SetUp()
 		{
+			parent::setUp();
 			$this->_script = new \Base_Model_JS_Object(
 				'my-super-cool-script',
 				'http://my-super-cool-site.com/wp-content/plugins/js/my-super-cool-script.js',
@@ -28,57 +29,54 @@ namespace WPMVCBase\Testing
 			do_action( 'init' );
 		}
 		
-		public function test_register()
+		public function testMethodRegister()
 		{
 			global $wp_scripts;
 			
+			$this->assertTrue( method_exists( 'Base_Model_JS_Object', 'register' ), 'Method register does not exist' );
 			$this->_script->register();
 			$this->assertTrue( wp_script_is( 'my-super-cool-script', 'registered' ) );
-		}
-		
-		public function testRegisterHandle()
-		{
-			$this->assertEquals( 'my-super-cool-script', $GLOBALS['wp_scripts']->registered['my-super-cool-script']->handle );
-		}
-		
-		public function test_register_src()
-		{
+			$this->assertEquals(
+				'my-super-cool-script',
+				$wp_scripts->registered['my-super-cool-script']->handle,
+				'Handle incorrectly registered'
+			);
 			$this->assertEquals( 
 				'http://my-super-cool-site.com/wp-content/plugins/js/my-super-cool-script.js',
-				$GLOBALS['wp_scripts']->registered['my-super-cool-script']->src
+				$wp_scripts->registered['my-super-cool-script']->src,
+				'Source incorrectly registered'
 			);
-		}
-		
-		public function test_register_deps()
-		{
 			$this->assertEquals( 
 				array( 'jquery', 'my-super-cool-framework' ),
-				$GLOBALS['wp_scripts']->registered['my-super-cool-script']->deps
+				$wp_scripts->registered['my-super-cool-script']->deps,
+				'Dependencies incorrectly registered'
 			);
-		}
-		
-		public function test_register_ver()
-		{
 			$this->assertEquals( 
 				true,
-				$GLOBALS['wp_scripts']->registered['my-super-cool-script']->ver
+				$wp_scripts->registered['my-super-cool-script']->ver,
+				'Version incorrectly registered'
 			);
 		}
 		
-		public function testEnqueue()
+		public function testMethodEnqueue()
 		{
-			global $wp_scripts;
+			$this->assertTrue( method_exists( 'Base_Model_JS_Object', 'enqueue' ) );
 			$this->_script->enqueue();
 			$this->assertTrue( wp_script_is( 'my-super-cool-script', 'enqueued' ) );
 		}
 		
-		public function testLocalize()
+		public function testMethodLocalize()
 		{
 			global $wp_scripts;
+			$this->assertTrue( method_exists( 'Base_Model_JS_Object', 'localize' ) );
 			$script = $wp_scripts->query( 'my-super-cool-script' );
 			$this->assertEquals( 'var mySuperCoolL10n = {"foo":"bar"};', $script->extra['data'] );
 		}
 		
+		/**
+		 * @depends testMethodEnqueue
+		 * @depends testMethodLocalize
+		 */
 		public function testLocalizeEmpty()
 		{
 			global $wp_scripts;
@@ -87,20 +85,28 @@ namespace WPMVCBase\Testing
 			$this->assertFalse( $baz->localize() );
 		}
 		
+		/**
+		 * @depends testMethodEnqueue
+		 */
 		public function test_dequeue()
 		{
+			$this->assertTrue( method_exists( 'Base_Model_JS_Object', 'dequeue' ), 'Method dequeue does not exist' );
 			$this->_script->enqueue();
-			$this->assertTrue( wp_script_is( 'my-super-cool-script', 'enqueued' ) );
+			$this->assertTrue( wp_script_is( 'my-super-cool-script', 'enqueued' ), 'Script not enqueued' );
 			$this->_script->dequeue();
-			$this->assertFalse( wp_script_is( 'my-super-cool-script', 'enqueued' ) );
+			$this->assertFalse( wp_script_is( 'my-super-cool-script', 'enqueued', 'Script not dequeued' ) );
 		}
 		
+		/**
+		 * @depends testMethodRegister
+		 */
 		public function test_deregister()
 		{
+			$this->assertTrue( method_exists( 'Base_Model_JS_Object', 'deregister' ), 'Method deregister does not exist' );
 			$this->_script->register();
-			$this->assertTrue( wp_script_is( 'my-super-cool-script', 'registered' ) );
+			$this->assertTrue( wp_script_is( 'my-super-cool-script', 'registered' ), 'Script not registered' );
 			$this->_script->deregister();
-			$this->assertFalse( wp_script_is( 'my-super-cool-script', 'registered' ) );
+			$this->assertFalse( wp_script_is( 'my-super-cool-script', 'registered' ), 'Script not deregistered' );
 		}
 	}
 }

@@ -343,8 +343,11 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 	 		//add_action( 'add_meta_boxes',			array( &$this, 'add_meta_boxes' ) );
 	 		
 	 		//enqueue scripts and css
-	 		add_action( 'admin_enqueue_scripts',	array( &$this, 'admin_enqueue_scripts' ) );
-	 		//add_action( 'wp_enqueue_scripts',		array( &$this, 'wp_enqueue_scripts' ) );
+	 		if( ( isset( $this->admin_scripts ) && count( $this->admin_scripts ) > 0 ) )
+	 			add_action( 'admin_enqueue_scripts',	array( &$this, 'admin_enqueue_scripts' ) );
+	 			
+	 		if( isset( $this->scripts ) && count( $this->scripts ) > 0 )
+	 			add_action( 'wp_enqueue_scripts',		array( &$this, 'wp_enqueue_scripts' ) );
 	 		
 	 		//post actions
 	 		add_action( 'the_post',					array( &$this, 'callback_the_post' ) );
@@ -619,6 +622,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			if( isset( $this->admin_scripts ) ):
 				foreach( $this->admin_scripts as $script ):
 					$script->register();
+					$script->enqueue();
 				endforeach;
 			endif;
 
@@ -640,12 +644,12 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 										$script->localize();
 									endforeach;
 								}
-							}
+							}	//$hook == 'post.php' || $hook == 'post-new.php'
 							break;
-						}
-					}
-				}
-			}
+						}	//$cpt->get_slug() == $screen->post_type
+					}	//foreach( $this->cpts as $cpt )
+				}	//isset( $this->cpts )
+			}	//$hook == 'post.php' || $hook == 'edit.php' || $hook == 'post-new.php'
 		}
 		
 		/**
@@ -978,19 +982,30 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			
 			if ( is_array( $menu_pages ) ):
 				foreach( $menu_pages as $key => &$page ):
-					//set the callback if necessary
-					if( ! isset( $page['callback'] ) )
-						$page['callback'] = array( &$this, 'render_options_page' );
-					
-					$page['callback'] = apply_filters( 'ah_filter_menu_page_callback' . $key, $page['callback'] );
-					
-					if( ! isset( $page['parent_slug'] ) ):
-						$page['hook_suffix'] = add_menu_page( $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'], $page['icon_url'], $page['position'] );
-					else:
-						$page['hook_suffix'] = add_submenu_page( $page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'] );
-					endif;
-					
-					if ( false === $page['hook_suffix'] ):
+					if( $page instanceof Base_Model_Menu_Page ) {
+						if ( ! $page->get_callback() )
+							$page->set_callback( array( &$this, 'render_options_page' ) );
+						
+						if ( false === $page->add() )
+							$error = true;
+					} else {
+						//set the page callback function if not already set
+						if( ! isset( $page['callback'] ) )
+							$page['callback'] = array( &$this, 'render_options_page' );
+						
+						$page['callback'] = apply_filters( 'ah_filter_menu_page_callback' . $key, $page['callback'] );
+						
+						if( ! isset( $page['parent_slug'] ) ):
+							$page['hook_suffix'] = add_menu_page( $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'], $page['icon_url'], $page['position'] );
+						else:
+							$page['hook_suffix'] = add_submenu_page( $page['parent_slug'], $page['page_title'], $page['menu_title'], $page['capability'], $page['menu_slug'], $page['callback'] );
+						endif;
+						
+						if ( false === $page['hook_suffix'] )
+							$error = true;
+					}	//$page instanceof Base_Model_Options_Page
+								
+					if ( $error ):
 						trigger_error( 
 							sprintf( __( 'Unable to add submenu page due to insufficient user capability: %s.', $this->txtdomain ), $key ),
 							E_USER_WARNING
@@ -1307,6 +1322,7 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ):
 			$this->cpts[ $cpt->get_slug() ] = $cpt;
 			add_action( 'init', array( &$cpt, 'register' ) );
 			add_action( 'add_meta_boxes', array( &$this, 'add_meta_boxes' ) );
+			
 			//register the post updated messages
 	 		add_action( 'post_updated_messages', array( &$this, 'post_updated_messages' ), 5 );
 	 		

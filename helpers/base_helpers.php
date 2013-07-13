@@ -82,7 +82,7 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 				mkdir( $target, $permissions, true );
 			
 			//create an index file in this directory if it does not exist
-			if( ! file_exists( trailingslashit( $target ) .'index.php' ) ):
+			if( ! file_exists( trailingslashit( $target ) .'index.php' ) && $index !== 'noindex' ):
 				$handle = fopen( trailingslashit( $target ) .'index.php', 'w' );
 				fwrite( $handle, '<?php //silence is golden. ?>' );
 				fclose( $handle );
@@ -118,7 +118,7 @@ if ( ! class_exists( 'Helper_Functions' ) ):
 		}
 		
 		/**
-		 * Remove a directory and all contents from the local filesystem
+		 * Remove a directory and all contents from the local filesystem.
 		 *
 		 * @package WPMVCBase
 		 * @param string $dirname The absolute path to the directory to be deleted.

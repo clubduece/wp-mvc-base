@@ -1,7 +1,7 @@
 <?php
-namespace WPMVCBase\Testing
+namespace WPMVCB\Testing
 {
-	require_once( dirname( __FILE__ ) . '../../../models/base_model.php' );
+	require_once( WPMVCB_SRC_DIR . '/models/base_model.php' );
 	
 	/**
 	 * Base Model Test Stub
@@ -9,7 +9,7 @@ namespace WPMVCBase\Testing
 	 * @internal
 	 * @since 0.1
 	 */
-	class Test_Stub_Base_Model extends \Base_Model
+	class TestStubBaseModel extends \Base_Model
 	{
 		public function __construct()
 		{
@@ -27,14 +27,23 @@ namespace WPMVCBase\Testing
 	 * @internal
 	 * @since 0.1
 	 */
-	class Test_Base_Model extends \WP_UnitTestCase
+	class TestBaseModel extends WPMVCB_Test_Case
 	{
 		public function SetUp()
 		{
-			$this->_model = new Test_Stub_Base_Model();
+			parent::setUp();
+			$this->_model = new TestStubBaseModel();
 		}
 		
-		public function test_get_css()
+		public function testMethodGetCssExists()
+		{
+			$this->assertTrue( method_exists( $this->_model, 'get_css' ) );
+		}
+		
+		/**
+		 * @depends testMethodGetCssExists
+		 */
+		public function testMethodGetCss()
 		{
 			$this->assertEquals(
 				array( 'foo_css' => array( 'handle' => 'bar_css' ) ),
@@ -42,7 +51,15 @@ namespace WPMVCBase\Testing
 			);
 		}
 		
-		public function test_get_admin_css()
+		public function testMethodGetAdminCssExists()
+		{
+			$this->assertTrue( method_exists( $this->_model, 'get_admin_css' ) );
+		}
+		
+		/**
+		 * @depends testMethodGetAdminCssExists
+		 */
+		public function testMethodGetAdminCss()
 		{
 			$this->assertEquals(
 				array( 'foo_admin_css' => array( 'handle' => 'bar_admin_css' ) ),
@@ -50,7 +67,15 @@ namespace WPMVCBase\Testing
 			);
 		}
 		
-		public function test_get_scripts()
+		public function testMethodGetScriptsExists()
+		{
+			$this->assertTrue( method_exists( $this->_model, 'get_scripts' ) );
+		}
+		
+		/**
+		 * @depends testMethodGetScriptsExists
+		 */
+		public function testMethodGetScripts()
 		{
 			global $post;
 			
@@ -60,7 +85,15 @@ namespace WPMVCBase\Testing
 			);
 		}
 		
-		public function test_get_admin_scripts()
+		public function testMethodGetAdminScriptsExists()
+		{
+			$this->assertTrue( method_exists( $this->_model, 'get_admin_scripts' ) );
+		}
+		
+		/**
+		 * @depends testMethodGetAdminScriptsExists
+		 */
+		public function testMethodGetAdminScripts()
 		{
 			global $post;
 			
@@ -70,6 +103,14 @@ namespace WPMVCBase\Testing
 			);
 		}
 		
+		public function testMethodGetMetaboxesExists()
+		{
+			$this->assertTrue( method_exists( $this->_model, 'get_metaboxes' ) );
+		}
+		
+		/**
+		 * @depends testMethodGetMetaboxesExists
+		 */
 		public function test_get_metaboxes()
 		{	
 			$this->assertEquals(

@@ -1,7 +1,7 @@
 <?php
 namespace WPMVCBase\Testing
 {
-	require_once( dirname( __FILE__ ) . '../../../helpers/base_helpers.php' );
+	require_once( WPMVCB_SRC_DIR . '/helpers/base_helpers.php' );
 	
 	/**
 	 * The test controller for Helper_Functions
@@ -12,98 +12,103 @@ namespace WPMVCBase\Testing
 	 */
 	class Test_Helper_Functions extends \WP_UnitTestCase
 	{
-		public function test_create_directory_dir_non_existent()
+		public function setUp()
 		{
-			\Helper_Functions::create_directory( dirname( __FILE__ ) . '/foo/bar' );
-			$this->assertFileExists( dirname( __FILE__ ) . '/foo/bar/index.php' );
+			\org\bovigo\vfs\vfsStreamWrapper::register();
+			\org\bovigo\vfs\vfsStreamWrapper::setRoot( new \org\bovigo\vfs\vfsStreamDirectory( 'test_dir' ) );
+			$this->_base_dir_path = \org\bovigo\vfs\vfsStream::url( 'test_dir' );
+			$this->_filesystem = \org\bovigo\vfs\vfsStreamWrapper::getRoot();
 		}
 		
-		public function test_create_directory_dir_existent()
+		public function testVfsDirectoryExists()
 		{
-			\Helper_Functions::create_directory( dirname( __FILE__ ) );
-			$this->assertFileExists( dirname( __FILE__ ) . '/index.php' );
+			$this->assertTrue( is_dir( $this->_base_dir_path ) );
 		}
 		
-		public function test_get_local_directory_contents()
+		public function testCreateDirectoryDirNonexistent()
 		{
+			\Helper_Functions::create_directory( $this->_base_dir_path . '/foo/bar' );
+			$this->assertTrue( $this->_filesystem->hasChild( 'foo/bar' ) );
+		}
+		
+		public function testCreateDirectoryDirExistent()
+		{
+			\Helper_Functions::create_directory( $this->_base_dir_path );
+			$this->assertTrue( $this->_filesystem->hasChild( 'index.php' ) );
+		}
+		
+		public function testGetLocalDirectoryContents()
+		{
+			\Helper_Functions::create_directory( $this->_base_dir_path . '/foo/bar' );
+			
 			$this->assertEquals(
 				array(
 					0 => array (
-			            'filename' => '.',
-			            'filetype' => '',
-			            'mimetype' => ''
-			        ),
-					1 => array (
-			            'filename' => '..',
-			            'filetype' => '',
-			            'mimetype' => ''
-			        ),
-			        2 => array (
 			            'filename' => 'index.php',
 			            'filetype' => '',
 			            'mimetype' => ''
 			        )
 			    ),
-				\Helper_Functions::get_local_directory_contents( dirname( __FILE__ ) . '/foo/bar' )
+				\Helper_Functions::get_local_directory_contents( $this->_base_dir_path . '/foo/bar' )
 			);
 		}
 		
-		public function test_get_local_directory_contents_dir_non_existent()
+		public function testGetLocalDirectoryContentsDirNonexistent()
 		{
-			$this->assertEquals( null, \Helper_Functions::get_local_directory_contents( dirname( __FILE__ ) . '/bar' ) );
+			$this->assertEquals( null, \Helper_Functions::get_local_directory_contents( $this->_base_dir_path . '/bar' ) );
 		}
 		
-		public function test_remove_local_directory()
+		public function testRemoveLocalDirectory()
 		{
-			$this->assertTrue( \Helper_Functions::remove_local_directory( dirname( __FILE__ ) . '/foo', 'force' ) );
-			$this->assertFalse( is_dir( dirname( __FILE__) . '/foo' ) );
+			$this->markTestIncomplete( 'This cannot be implemented using vfsStream due to being incompatible with SplFileInfo::getRealPath(). See https://github.com/mikey179/vfsStream/wiki/Known-Issues.');
+			/*
+\Helper_Functions::create_directory( $this->_base_dir_path . '/foo' );
+			$this->assertTrue( $this->_filesystem->hasChild( 'foo' ) );
+			$this->assertTrue( \Helper_Functions::remove_local_directory( $this->_base_dir_path . '/foo', 'force' ) );
+			$this->assertFalse( $this->_filesystem->hasChild ( 'foo' ) );
+*/
 		}
 		
-		public function test_remove_local_directory_dir_param_slash()
+		public function testRemoveLocalDirectoryDirParamSlash()
 		{
 			$this->assertFalse( \Helper_Functions::remove_local_directory( '/' ) );
 		}
 		
-		public function test_remove_local_directory_dir_param_empty()
+		public function testRemoveLocalDirectoryDirParamEmpty()
 		{
 			$this->assertFalse( \Helper_Functions::remove_local_directory( '' ) );
 		}
 		
-		public function test_remove_local_directory_dir_slash()
+		public function testRemoveLocalDirectoryDirNonexistent()
 		{
-			$this->assertFalse( \Helper_Functions::remove_local_directory( '/' ) );
+			$this->assertFalse( \Helper_Functions::remove_local_directory( $this->_base_dir_path . '/bar' ) );
 		}
 		
-		public function test_remove_local_directory_dir_non_existent()
-		{
-			$this->assertFalse( \Helper_Functions::remove_local_directory( dirname( __FILE__ ) . '/bar' ) );
-		}
-		
-		public function test_delete_local_file_exception()
+		public function testDeleteLocalFileException()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
-			\Helper_Functions::delete_local_file( dirname( __FILE__ ) . '/index.php' );
+			\Helper_Functions::delete_local_file( $this->_base_dir_path . '/index.php' );
 		}
 		
-		public function test_delete_local_file_message()
+		public function testDeleteLocalFileExceptionMessage()
 		{
-			@\Helper_Functions::delete_local_file( dirname( __FILE__ ) . '/index.php' );
+			@\Helper_Functions::delete_local_file( $this->_base_dir_path . '/index.php' );
 			$error = error_get_last();
 			
 			$this->assertEquals( 'DEPRECATED: The function delete_local_file is deprecated. Please use PHP unlink instead.', $error['message'] );
 		}
 		
-		public function test_delete_local_file()
+		public function testDeleteLocalFile()
 		{
-			$handle = fopen( dirname( __FILE__ )  .'/index.php', 'w' );
+			$handle = fopen( $this->_base_dir_path  .'/index.php', 'w' );
 			fwrite( $handle, '<?php //silence is golden. ?>' );
 			fclose( $handle );
 			
-			@\Helper_Functions::delete_local_file( dirname( __FILE__ ) . '/index.php' );
-			$this->assertFalse( file_exists( dirname( __FILE__ ) . '/index.php' ) );
+			@\Helper_Functions::delete_local_file( $this->_base_dir_path . '/index.php' );
+			$this->assertFalse( file_exists( $this->_base_dir_path . '/index.php' ) );
 		}
 		
-		public function test_sanitize_text_field_array()
+		public function testSanitizeTextFieldArray()
 		{
 			$array = array(	
 				'foo' => '~!@#$%^&*()_+`1234567890-=:;"<>?,./[]\{}|',
@@ -123,7 +128,7 @@ namespace WPMVCBase\Testing
 		 *
 		 * @since 0.1
 		 */
-		public function test_deprecated_exception()
+		public function testDeprecatedException()
 		{
 			$this->setExpectedException( 'PHPUnit_Framework_Error' );
 			\Helper_Functions::deprecated( 'foo', 'bar', 'my-super-cool-text-domain' );
@@ -134,7 +139,7 @@ namespace WPMVCBase\Testing
 		 *
 		 * @since 0.1
 		 */
-		public function test_deprecated_message()
+		public function testDeprecatedExceptionMessage()
 		{
 			//the @ symbol supresses the expected error
 			@\Helper_Functions::deprecated( 'foo', 'bar', 'my-super-cool-text-domain' );

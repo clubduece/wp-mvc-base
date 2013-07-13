@@ -14,8 +14,6 @@ env:
 - WP_VERSION=3.5 WP_MULTISITE=1
 
 before_script:
-#Coveralls support
-- mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ~/xdebug.ini
 - curl http://cs.sensiolabs.org/get/php-cs-fixer.phar -o php-cs-fixer.phar
 - curl -s http://getcomposer.org/installer | php
 - php composer.phar install --dev --no-interaction --prefer-source
@@ -44,7 +42,6 @@ script:
 - phpunit
 
 after_script:
-- php tests/includes/clover.php ../build/logs/clover.xml 75
 - php vendor/bin/coveralls -v --dry-run
 
 notifications:

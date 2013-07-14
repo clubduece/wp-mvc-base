@@ -50,6 +50,7 @@ namespace WPMVCB\Testing
 			
 			$this->setReflectionPropertyValue( $this->_settings_model, 'options', array( 'foo', 'bar', 'baz' ) );
 			$this->reflectionMethodInvoke( $this->_settings_model, 'init_settings' );
+			$this->markTestIncomplete( 'Missing assertions' );
 		}
 		
 		public function testMethodGetOptions()

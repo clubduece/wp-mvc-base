@@ -457,11 +457,9 @@ if ( ! class_exists( 'Base_Model' ) ) :
 		 * @since 0.1
 		 */
 		public function get_metaboxes()
-		{
-			global $post;
-			
+		{	
 			if ( ! isset( $this->metaboxes ) && method_exists( $this, 'init_metaboxes' ) ) {
-				$this->init_metaboxes( $post, $this->txtdomain );
+				$this->init_metaboxes();
 			}
 			
 			if ( isset( $this->metaboxes ) ) {

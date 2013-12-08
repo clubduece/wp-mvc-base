@@ -18,21 +18,26 @@ namespace WPMVCB\Testing
 			//implemented, but does nothing
 		}
 		
-		protected function init_metaboxes( $txtdomain )
+		protected function init_metaboxes()
 		{
 			$this->metaboxes = array(
-			'book_metabox' => new \Base_Model_Metabox(
-				'book_metabox',
-				__( 'Book Metabox', $txtdomain ),
-				null,
-				array( $this->slug ),
-				'normal',
-				'default',
-				array( 
-					'view' => $this->app_path . 'views/metabox-book-metabox.php',
+				'book_metabox' => new \Base_Model_Metabox(
+					'book_metabox',
+					__( 'Book Metabox', $txtdomain ),
+					null,
+					array( $this->slug ),
+					'normal',
+					'default',
+					array( 
+						'view' => $this->app_path . 'views/metabox-book-metabox.php',
+					)
 				)
-			)
-		);
+			);
+		}
+		
+		protected function init_help_tabs()
+		{
+			//implemented but does nothing
 		}
 		
 		public function save_post()
@@ -104,6 +109,14 @@ namespace WPMVCB\Testing
 			);
 			
 			$this->assertEquals( $expected, $this->model->get_metaboxes( 23, 'footxtdomain' ) );
+		}
+		
+		/**
+		 * @covers Base_Model::get_help_tabs
+		 */
+		public function testMethodGetHelpTabs()
+		{
+			$this->model->get_help_tabs();
 		}
 	}
 }

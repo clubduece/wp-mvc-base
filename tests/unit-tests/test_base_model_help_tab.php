@@ -11,9 +11,10 @@ namespace WPMVCB\Testing
 		{
 			parent::setUp();
 			$this->tab = new \Base_Model_Help_Tab(
-				'My Test Tab',
 				'test-tab',
+				'My Test Tab',
 				array( 'load-post-new.php' ),
+				array( 'post' ),
 				'Here is some test tab content'
 			);
 		}
@@ -41,6 +42,11 @@ namespace WPMVCB\Testing
 			$this->assertClassHasAttribute( 'screens', 'Base_Model_Help_Tab' );
 		}
 		
+		public function testAttributePostTypesExists()
+		{
+			$this->assertClassHasAttribute( 'post_types', 'Base_Model_Help_Tab' );
+		}
+		
 		public function testAttributeContentExists()
 		{
 			$this->assertClassHasAttribute( 'content', 'Base_Model_Help_Tab' );
@@ -62,6 +68,12 @@ namespace WPMVCB\Testing
 		{
 			$this->assertTrue( method_exists( 'Base_Model_Help_Tab', 'get_screens' ) );
 			$this->assertEquals( array( 'load-post-new.php' ), $this->tab->get_screens() );
+		}
+		
+		public function testMethodGetPostTypes()
+		{
+			$this->assertTrue( method_exists( 'Base_Model_Help_Tab', 'get_post_types' ) );
+			$this->assertEquals( array( 'post' ), $this->tab->get_post_types() );
 		}
 		
 		public function testMethodGetContent()

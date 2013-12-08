@@ -90,6 +90,8 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ) {
 			if ( method_exists( $this, 'init' ) ) {
 				$this->init();
 			}
+			
+			$this->init_help_tabs();
 		}
 
 		/**
@@ -227,6 +229,48 @@ if ( ! class_exists( 'Base_Controller_Plugin' ) ) {
 			
 			if ( is_array( $metaboxes ) ) {
 				parent::add_meta_boxes( $metaboxes );
+			}
+		}
+		
+		/**
+		 * Hook actions for the help tabs for the plugin model.
+		 *
+		 * @uses Base_Model_Plugin::get_help_tabs
+		 * @uses Base_Model_Help_Tab::get_screens
+		 * @since WPMVCBase 0.3
+		 */
+		protected function init_help_tabs()
+		{
+			// Get the help tabs defined for the plugin model
+			$tabs = $this->plugin_model->get_help_tabs();
+			
+			if ( isset( $tabs ) && is_array( $tabs ) ) {
+				foreach( $tabs as $tab ) {
+					//get the screens on which to display this tab
+					$screens = $tab->get_screens();
+					foreach( $screens as $screen ) {
+						add_action( $screen, array( &$this, 'render_help_tabs' ) );
+					}
+				}
+			}
+		}
+		
+		/**
+		 * Render the help tabs for the plugin model.
+		 *
+		 * @uses Base_Model_Plugin::get_help_tabs
+		 * @uses Base_Controller_Plugin::render_help_tab
+		 * @since WPMVCBase 1.0
+		 */
+		public function render_help_tabs()
+		{
+			$tabs   = $this->plugin_model->get_help_tabs();
+			$screen = get_current_screen();
+			
+			foreach( $tabs as $tab ) {
+				if ( in_array( $screen->post_type, $tab->get_post_types() ) ) {
+					parent::render_help_tab( $tab );
+				}
 			}
 		}
 	}

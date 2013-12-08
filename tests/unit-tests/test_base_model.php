@@ -686,5 +686,25 @@ namespace WPMVCB\Testing
 				)
 			);
 		}
+		
+		/**
+		 * @covers Base_Model::get_admin_notices
+		 */
+		public function testMethodGetAdminNotices()
+		{
+			$this->setReflectionPropertyValue( $this->model, 'admin_notices', array( 'foo', 'bar' ) );
+			
+			$this->assertTrue( method_exists( 'Base_Model', 'get_admin_notices' ) );
+			$this->assertEquals( array( 'foo', 'bar' ), $this->model->get_admin_notices() );
+		}
+		
+		/**
+		 * @covers Base_Model::get_admin_notices
+		 */
+		public function testMethodGetAdminNoticesEmpty()
+		{	
+			$this->assertTrue( method_exists( 'Base_Model', 'get_admin_notices' ), 'Method get_admin_notices does not exist' );
+			$this->assertFalse( $this->model->get_admin_notices() );
+		}
 	}
 }

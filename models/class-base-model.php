@@ -196,6 +196,16 @@ if ( ! class_exists( 'Base_Model' ) ) :
 		protected $shortcodes;
 		
 		/**
+		 * The model's admin notices.
+		 *
+		 * This is a collection of Base_Model_Admin_Notice objects.
+		 * @var array
+		 * since 0.3
+		 * @see Base_Model_Admin_Notice
+		 */
+		protected $admin_notices;
+		
+		/**
 		 * The class constructor.
 		 *
 		 * @param string $main_plugin_file
@@ -649,7 +659,15 @@ if ( ! class_exists( 'Base_Model' ) ) :
 
 			return true;
 		}
-
+		
+		public function get_admin_notices()
+		{
+			if ( isset( $this->admin_notices ) ) {
+				return $this->admin_notices;
+			}
+			
+			return false;
+		}
 
 	}
 endif;

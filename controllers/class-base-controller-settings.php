@@ -38,7 +38,7 @@ if ( ! class_exists( 'Base_Controller_Settings' ) ) {
 		/**
 		 * The class constructor.
 		 *
-		 * @param  object $model The Base_Model_Settings object.
+		 * @param  Base_Model_Settings $model The Base_Model_Settings object.
 		 * @access public
 		 * @since  WPMVCBase 0.2
 		 */

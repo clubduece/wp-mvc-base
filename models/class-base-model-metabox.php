@@ -250,7 +250,7 @@ if ( ! class_exists( 'Base_Model_Metabox' ) ):
 		/**
 		 * set the post types
 		 *
-		 * @param  array $post_type
+		 * @param  array $post_types
 		 * @return void
 		 * @access public
 		 * @since  WPMVCBase 0.1

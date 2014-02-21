@@ -259,7 +259,7 @@ if ( ! class_exists( 'Base_Model_JS_Object' ) ):
 		/**
 		 * Get the script placement.
 		 *
-		 * @return string $in_footer
+		 * @return boolean $in_footer
 		 * @since WPMVCBase 0.3
 		 */
 		function get_in_footer()
@@ -270,7 +270,7 @@ if ( ! class_exists( 'Base_Model_JS_Object' ) ):
 		/**
 		 * Get the script localization variable name.
 		 *
-		 * @return string|bool $localization_var if set, FALSE if not.
+		 * @return string|false $localization_var if set, FALSE if not.
 		 * @since WPMVCBase 0.3
 		 */
 		function get_localization_var()

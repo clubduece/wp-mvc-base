@@ -52,7 +52,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		/**
 		 * Add a cpt model to this controller.
 		 *
-		 * @param  object         $model The Base_Model_CPT for this controller.
+		 * @param  Base_Model_CPT         $model The Base_Model_CPT for this controller.
 		 * @return array          $_cpt_models
 		 * @access public
 		 * @since  WPMVCBase 0.2

@@ -409,7 +409,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		 * Add a settings section.
 		 *
 		 * @param  array $section The section to be added.
-		 * @return void
+		 * @return boolean
 		 * @access public
 		 * @since  WPMVCBase 0.1
 		 */
@@ -440,8 +440,7 @@ if ( ! class_exists( 'Base_Model_Settings' ) ):
 		/**
 		 * Add a settings field.
 		 *
-		 * @param  array $settings The fields to be added.
-		 * @return void
+		 * @return boolean
 		 * @access public
 		 * @since  WPMVCBase 0.1
 		 */

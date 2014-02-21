@@ -207,6 +207,7 @@ if ( ! class_exists( 'Base_Model' ) ) :
 		 * @param  string $base_path
 		 * @param  string $uri
 		 * @param  string $txtdomain
+		 * @param string $plugin_path
 		 * @access public
 		 * @since  WPMVCBase 0.1
 		 */

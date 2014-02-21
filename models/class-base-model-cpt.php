@@ -118,6 +118,7 @@ if ( ! class_exists( 'Base_Model_CPT' ) && class_exists( 'Base_Model' ) ):
 		 *
 		 * @access protected
 		 * @since  WPMVCBase 0.1
+		 * @param string $txtdomain
 		 */
 		protected function init_labels( $txtdomain )
 		{

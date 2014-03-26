@@ -29,11 +29,11 @@ before_script:
 - tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
 # Initialize the WP unit test directory
 - export WP_TESTS_DIR=/tmp/wordpress-tests/
-- svn co http://unit-tests.svn.wordpress.org/trunk/ /tmp/wordpress-tests/
+- svn co http://develop.svn.wordpress.org/trunk/ /tmp/wordpress-tests/
 # Set up the database access
 - cp /tmp/wordpress-tests/wp-tests-config-sample.php /tmp/wordpress-tests/wp-tests-config.php
 - sed -i "s:dirname( __FILE__ ) . '/wordpress/':'$WP_CORE_DIR':" /tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/yourdbnamehere/wordpress_test/" /tmp/wordpress-tests/wp-tests-config.php
+- sed -i "s/youremptytestdbnamehere/wordpress_test/" /tmp/wordpress-tests/wp-tests-config.php
 - sed -i "s/yourusernamehere/root/" /tmp/wordpress-tests/wp-tests-config.php
 - sed -i "s/yourpasswordhere//" /tmp/wordpress-tests/wp-tests-config.php
 - mysql -e 'CREATE DATABASE wordpress_test;' -uroot

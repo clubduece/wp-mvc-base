@@ -56,7 +56,7 @@ namespace WPMVCB\Testing
 		
 		public function testPropertyCptModelsExists()
 		{
-			$this->assertClassHasAttribute( '_cpt_models', '\Base_Controller_CPT' );
+			$this->assertClassHasAttribute( 'cpt_models', '\Base_Controller_CPT' );
 		}
 		
 		public function testActionExistsWpEnqueueScripts()
@@ -111,7 +111,7 @@ namespace WPMVCB\Testing
 			$expected = array( 'fooslug' => $cpt_model );
 
 			$this->_controller->add_model( $cpt_model );
-			$this->assertEquals( $expected, $this->getReflectionPropertyValue( $this->_controller, '_cpt_models' ) );
+			$this->assertEquals( $expected, $this->getReflectionPropertyValue( $this->_controller, 'cpt_models' ) );
 		}
 
 		/**
@@ -149,8 +149,8 @@ namespace WPMVCB\Testing
 			          ->method( 'get_args' )
 			          ->will( $this->returnValue( 'fooargs' ) );
 
-			//add the model to the controller's _cpt_models property
-			$this->setReflectionPropertyValue( $this->_controller, '_cpt_models', array( 'fooslug' => $cpt_model ) );
+			//add the model to the controller's cpt_models property
+			$this->setReflectionPropertyValue( $this->_controller, 'cpt_models', array( 'fooslug' => $cpt_model ) );
 
 			$this->_controller->register();
 			$this->assertTrue( post_type_exists( 'fooslug' ) );
@@ -172,8 +172,8 @@ namespace WPMVCB\Testing
 				  ->method( 'get_slug' )
 				  ->will( $this->returnValue( 'foocptslug' ) );
 
-			//add the model to the controller's _cpt_models property
-			$this->setReflectionPropertyValue( $this->_controller, '_cpt_models', array( 'foocptslug' => $model ) );
+			//add the model to the controller's cpt_models property
+			$this->setReflectionPropertyValue( $this->_controller, 'cpt_models', array( 'foocptslug' => $model ) );
 			
 			$messages = $this->_controller->post_updated_messages( array() );
 			
@@ -251,7 +251,7 @@ namespace WPMVCB\Testing
 			      ->will( $this->returnValue( array( $metabox ) ) );
 
 			//add the model to the controller
-			$this->setReflectionPropertyValue( $this->_controller, '_cpt_models', array( 'foocptmetabox' => $model ) );
+			$this->setReflectionPropertyValue( $this->_controller, 'cpt_models', array( 'foocptmetabox' => $model ) );
 
 			$this->_controller->add_meta_boxes();
 
@@ -292,7 +292,7 @@ namespace WPMVCB\Testing
 			      ->will( $this->returnValue( array( $script ) ) );
 			
 			//add the model to the controller
-			$this->setReflectionPropertyValue( $this->_controller, '_cpt_models', array( 'fooadminscript' => $model ) );
+			$this->setReflectionPropertyValue( $this->_controller, 'cpt_models', array( 'fooadminscript' => $model ) );
 			
 			//call the SUT
 			$this->_controller->admin_enqueue_scripts();
@@ -347,7 +347,7 @@ namespace WPMVCB\Testing
 			      ->will( $this->returnValue( array( $script ) ) );
 			
 			//add the model to the controller
-			$this->setReflectionPropertyValue( $this->_controller, '_cpt_models', array( 'foocptscript' => $model ) );
+			$this->setReflectionPropertyValue( $this->_controller, 'cpt_models', array( 'foocptscript' => $model ) );
 			
 			//call the SUT
 			$this->_controller->wp_enqueue_scripts();

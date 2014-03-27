@@ -33,7 +33,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		 * @access protected
 		 * @since  WPMVCBase 0.1
 		 */
-		protected $_cpt_models;
+		protected $cpt_models;
 		
 		/**
 		 * The class constructor.
@@ -59,7 +59,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		 */
 		public function add_model( Base_Model_Cpt $model )
 		{	
-			$this->_cpt_models[ $model->get_slug() ] = $model;
+			$this->cpt_models[ $model->get_slug() ] = $model;
 			
 			//register a save_post action
 			if ( method_exists( $model, 'save_post' ) ) {
@@ -82,7 +82,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 				}
 			}
 			
-			return $this->_cpt_models;
+			return $this->cpt_models;
 		}
 
 		/**
@@ -97,8 +97,8 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		{
 			$return = array();
 			
-			if ( isset( $this->_cpt_models ) ) {
-				foreach ( $this->_cpt_models as $cpt ) {
+			if ( isset( $this->cpt_models ) ) {
+				foreach ( $this->cpt_models as $cpt ) {
 					$return[ $cpt->get_slug() ] = register_post_type( $cpt->get_slug(), $cpt->get_args() );
 				}
 			}
@@ -119,31 +119,31 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		{
 			global $post;
 			
-			if ( isset( $this->_cpt_models ) ) {
-				foreach ( $this->_cpt_models as $cpt ) {
+			if ( isset( $this->cpt_models ) ) {
+				foreach ( $this->cpt_models as $cpt ) {
 					$messages[ $cpt->get_slug() ] = array(
 						0 => null, // Unused. Messages start at index 1.
 						1 => sprintf(
-							__( '%1$s updated. <a href="%3$s">View %2$s</a>', $this->_txtdomain ),
+							__( '%1$s updated. <a href="%3$s">View %2$s</a>', $this->txtdomain ),
 							$cpt->get_singular(),
 							strtolower( $cpt->get_singular() ),
 							esc_url( get_permalink( $post->ID ) )
 						),
-						2 => __( 'Custom field updated.', $this->_txtdomain ),
-						3 => __( 'Custom field deleted.', $this->_txtdomain ),
-						4 => sprintf( __( '%s updated.', $this->_txtdomain ), $cpt->get_singular() ),
+						2 => __( 'Custom field updated.', $this->txtdomain ),
+						3 => __( 'Custom field deleted.', $this->txtdomain ),
+						4 => sprintf( __( '%s updated.', $this->txtdomain ), $cpt->get_singular() ),
 						/* translators: %2$s: date and time of the revision */
-						5 => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %s', $this->_txtdomain ), $cpt->get_singular(), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-						6 => sprintf( __( '%s published. <a href="%s">View book</a>', $this->_txtdomain ), $cpt->get_singular(), esc_url( get_permalink( $post->ID ) ) ),
-						7 => sprintf( __( '%s saved.', $this->_txtdomain ), $cpt->get_singular() ),
+						5 => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %s', $this->txtdomain ), $cpt->get_singular(), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+						6 => sprintf( __( '%s published. <a href="%s">View book</a>', $this->txtdomain ), $cpt->get_singular(), esc_url( get_permalink( $post->ID ) ) ),
+						7 => sprintf( __( '%s saved.', $this->txtdomain ), $cpt->get_singular() ),
 						8 => sprintf(
-							__( '%1$s submitted. <a target="_blank" href="%3$s">Preview %2$s</a>', $this->_txtdomain ),
+							__( '%1$s submitted. <a target="_blank" href="%3$s">Preview %2$s</a>', $this->txtdomain ),
 							$cpt->get_singular(),
 							strtolower( $cpt->get_singular() ),
 							esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) )
 						),
 						9 => sprintf(
-							__( '%3$s scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview %4$s</a>', $this->_txtdomain ),
+							__( '%3$s scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview %4$s</a>', $this->txtdomain ),
 							// translators: Publish box date format, see http://php.net/date
 							date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ),
 							esc_url( get_permalink( $post->ID ) ),
@@ -151,7 +151,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 							strtolower( $cpt->get_singular() )
 						),
 						10 => sprintf(
-							__( '%1$s draft updated. <a target="_blank" href="%3$s">Preview %2$s</a>', $this->_txtdomain ),
+							__( '%1$s draft updated. <a target="_blank" href="%3$s">Preview %2$s</a>', $this->txtdomain ),
 							$cpt->get_singular(),
 							strtolower( $cpt->get_singular() ),
 							esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) )
@@ -173,9 +173,9 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		{
 			global $post;
 			
-			if ( isset( $this->_cpt_models ) && is_array( $this->_cpt_models ) ) {
-				foreach ( $this->_cpt_models as $cpt ) {
-					if ( $metaboxes = $cpt->get_metaboxes( $post, $this->_txtdomain ) ) {
+			if ( isset( $this->cpt_models ) && is_array( $this->cpt_models ) ) {
+				foreach ( $this->cpt_models as $cpt ) {
+					if ( $metaboxes = $cpt->get_metaboxes( $post, $this->txtdomain ) ) {
 						parent::add_meta_boxes( $metaboxes );
 					}
 				}
@@ -190,7 +190,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		 */
 		public function admin_enqueue_scripts()
 		{
-			foreach( $this->_cpt_models as $cpt ) {
+			foreach( $this->cpt_models as $cpt ) {
 				$scripts = $cpt->get_admin_scripts();
 				
 				if ( isset( $scripts ) && is_array( $scripts ) ) {
@@ -215,7 +215,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		 */
 		public function wp_enqueue_scripts()
 		{
-			foreach( $this->_cpt_models as $cpt ) {
+			foreach( $this->cpt_models as $cpt ) {
 				$scripts = $cpt->get_scripts();
 				
 				if ( isset( $scripts ) && is_array( $scripts ) ) {
@@ -242,7 +242,7 @@ if ( ! class_exists( 'Base_Controller_CPT' ) && class_exists( 'Base_Controller' 
 		{
 			$screen = get_current_screen();
 			
-			foreach( $this->_cpt_models as $cpt ) {
+			foreach( $this->cpt_models as $cpt ) {
 				if ( $screen->post_type == $cpt->get_slug() ) {
 					$tabs = $cpt->get_help_tabs();
 					

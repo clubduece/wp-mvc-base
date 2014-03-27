@@ -544,7 +544,7 @@ namespace WPMVCB\Testing
 		public function testMethodAddSubmenuPage()
 		{
 			//set the current user to admin
-			set_current_user( 1 );
+			wp_set_current_user( 1 );
 
 			$page = new \Base_Model_Menu_Page;
 			$page->set_parent_slug( 'options-general.php' );

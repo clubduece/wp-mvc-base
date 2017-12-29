@@ -1,4 +1,6 @@
 <?php
+namespace WPMVCB;
+
 /*
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -53,26 +55,28 @@ class WPMVCB  {
     public function __construct() {
 
         $this->autoload_classes = array(
-            'WPMVC_Controller_Base'          => __DIR__ . '/controllers/class-controller-base.php',
-            'WPMVCB_Cpt_Base'                => __DIR__ . '/controllers/class-cpt-base.php',
-            'Base_Controller_Plugin'         => __DIR__ . '/controllers/class-base-controller-plugin.php',
-            'WPMVCB_Settings_Base'           => __DIR__ . '/controllers/class-settings-base.php',
-            'WPMVCB_Taxonomy_Base'           => __DIR__ . '/controllers/class-taxonomy-base.php',
-            'WPMVCB_Metabox'                 => __DIR__ . '/controllers/class-metabox-base.php',
-            'WPMVCB_Model_Base'              => __DIR__ . '/models/class-model-base.php',
-            'WPMVCB_Admin_Notice_Model_Base' => __DIR__ . '/models/class-admin-notice-model-base.php',
-            'WPMVCB_Post_Model_Base'         => __DIR__ . '/models/class-post-model-base.php',
-            'Base_Model_Help_Tab'            => __DIR__ . '/models/class-base-model-help-tab.php',
-            'Base_Model_JS_Object'           => __DIR__ . '/models/class-base-model-js-object.php',
-            'WPMVCB_Menu_Page_Model_Base'    => __DIR__ . '/models/class-menu-page-model-base.php',
-            'WPMVCB_Metabox_Model_Base'      => __DIR__ . '/models/class-metabox-model-base.php',
-            'Base_Model_Plugin'              => __DIR__ . '/models/class-base-model-plugin.php',
-            'WPMVCB_Settings_Model_Base'     => __DIR__ . '/models/class-settings-model-base.php',
-            'WPMVCB_Taxonomy_Model_Base'     => __DIR__ . '/models/class-base-model-taxonomy.php',
-            'WPMVCB_Post_View_Base'          => __DIR__ . '/views/class-post-view-base.php',
-            'WPMVCB_Metabox_View_Base'       => __DIR__ . '/views/class-metabox-view-base.php',
-            'WPMVCB_Metabox_Default_View'    => __DIR__ . '/views/class-metabox-view-default.php',
-            'Helper_Functions'               => __DIR__ . '/helpers/class-base-helpers.php',
+        	__NAMESPACE__ . '\Base'                           => __DIR__ . '/includes/class-base.php',
+            __NAMESPACE__ . '\Controller_Base'                => __DIR__ . '/controllers/class-controller-base.php',
+            __NAMESPACE__ . '\Post_Type_Base'                 => __DIR__ . '/controllers/class-post-type-base.php',
+	        __NAMESPACE__ . '\Post_Base'                      => __DIR__ . '/controllers/class-post-base.php',
+//            'Base_Controller_Plugin'         => __DIR__ . '/controllers/class-base-controller-plugin.php',
+//            'WPMVCB_Settings_Base'           => __DIR__ . '/controllers/class-settings-base.php',
+            __NAMESPACE__ . '\Taxonomy_Base'                  => __DIR__ . '/controllers/class-taxonomy-base.php',
+//            'WPMVCB_Metabox'                 => __DIR__ . '/controllers/class-metabox-base.php',
+            __NAMESPACE__ . '\Model_Base'              => __DIR__ . '/models/class-model-base.php',
+//            'WPMVCB_Admin_Notice_Model_Base' => __DIR__ . '/models/class-admin-notice-model-base.php',
+            __NAMESPACE__ . '\Post_Model_Base'         => __DIR__ . '/models/class-post-model-base.php',
+//            'Base_Model_Help_Tab'            => __DIR__ . '/models/class-base-model-help-tab.php',
+//            'Base_Model_JS_Object'           => __DIR__ . '/models/class-base-model-js-object.php',
+//            'WPMVCB_Menu_Page_Model_Base'    => __DIR__ . '/models/class-menu-page-model-base.php',
+//            'WPMVCB_Metabox_Model_Base'      => __DIR__ . '/models/class-metabox-model-base.php',
+//            'Base_Model_Plugin'              => __DIR__ . '/models/class-base-model-plugin.php',
+//            'WPMVCB_Settings_Model_Base'     => __DIR__ . '/models/class-settings-model-base.php',
+//            'WPMVCB_Taxonomy_Model_Base'     => __DIR__ . '/models/class-base-model-taxonomy.php',
+            __NAMESPACE__ . '\Post_View_Base'          => __DIR__ . '/views/class-post-view-base.php',
+//            'WPMVCB_Metabox_View_Base'       => __DIR__ . '/views/class-metabox-view-base.php',
+//            'WPMVCB_Metabox_Default_View'    => __DIR__ . '/views/class-metabox-view-default.php',
+//            'Helper_Functions'               => __DIR__ . '/helpers/class-base-helpers.php',
         );
 
         spl_autoload_register( array( $this, 'autoloader' ) );
@@ -104,7 +108,7 @@ class WPMVCB  {
         if ( isset( $this->autoload_classes[ $class ] ) ) {
             if ( file_exists( $this->autoload_classes[ $class ] ) ) {
                 require_once $this->autoload_classes[ $class ];
-                if ( is_callable( "{$class}::on_load" ) ) {
+                if ( is_callable( array( $class, 'on_load') ) ) {
                     call_user_func( array( $class, 'on_load' ) );
                 }
             }

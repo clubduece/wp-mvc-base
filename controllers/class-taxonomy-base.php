@@ -1,59 +1,59 @@
 <?php
-/*
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+namespace WPMVCB;
 
 /**
- * Class Base_Controller_Taxnomy
+ * Class Taxonomy_Base
+ *
+ * @method static array    taxonomy_args()
+ * @method static string[] object_types()
  *
  * @since WPMVCBase 0.4
  */
-class WPMVCB_Taxonomy_Base extends WPMVC_Controller_Base {
+class Taxonomy_Base extends Base {
 
 	/**
 	 * The taxonomy slug
-	 *
-	 * @var   string
 	 */
-	public static $taxonomy = null;
+	const TAXONOMY = null;
+
+	/**
+	 * The term class
+	 */
+	const INSTANCE_CLASS = null;
 	
 	/**
 	 * The post type slugs to which this taxonomy is assigned
 	 *
 	 * @var array
 	 */
-	protected static $object_types = array();
+	protected static $_object_types = array();
 
 	/**
 	 * The taxonomy slug and arguments stored as key/value pairs
 	 */
-	protected static $taxonomy_args = array();
+	protected static $_taxonomy_args = array();
 
 	/**
-	 * Register a taxonomy
 	 *
-	 * @param string $slug
-	 * @param array  $object_types
+	 */
+	public static function get_term() {
+
+	}
+
+	public static function register_object_types( $types = array() ) {
+
+		self::$_object_types = $types;
+
+	}
+
+	/**
+	 * Register the taxonomy arguments
+	 *
 	 * @param array  $args
 	 */
-	public static function register_taxonomy_args( $slug, $object_types, $args ) {
+	public static function register_taxonomy_args( $args ) {
 
-		self::$taxonomy_args[ $slug ] = array(
-			'object_types' => $object_types,
-			'args'         => $args,
-		);
+		self::$_taxonomy_args = $args;
 
 	}
 
@@ -62,9 +62,7 @@ class WPMVCB_Taxonomy_Base extends WPMVC_Controller_Base {
 	 */
 	public static function init() {
 
-		foreach( self::$taxonomy_args as $slug => $taxonomy ) {
-			register_taxonomy( $slug, $taxonomy['object_types'], $taxonomy['args'] );
-		} 
+		register_taxonomy( static::TAXONOMY, static::object_types(), static::taxonomy_args() );
 
 	}
 
@@ -104,5 +102,3 @@ class WPMVCB_Taxonomy_Base extends WPMVC_Controller_Base {
 	}
 
 }
-
-WPMVCB_Taxonomy_Base::on_load();

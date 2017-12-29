@@ -1,8 +1,11 @@
 <?php
-namespace WPMVCB\Testing;
-	use \WP_UnitTest_Factory;
+namespace WPMVCB\Tests;
 
-class WPMVCB_Tests_Factory extends WP_UnitTest_Factory
+/**
+ * Class Factory
+ * @package WPMVCB\Tests
+ */
+class Factory extends \WP_UnitTest_Factory
 {
 	public $mock;
 
@@ -10,6 +13,5 @@ class WPMVCB_Tests_Factory extends WP_UnitTest_Factory
 	{
 		parent::__construct();
 
-		$this->mock = new WPMVCB_Tests_Factory_For_Mock( $this );
 	}
 }

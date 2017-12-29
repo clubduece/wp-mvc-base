@@ -1,0 +1,14 @@
+# .scrutinizer.yml
+build:
+    nodes:
+        analysis:
+            project_setup:
+                override: true
+            tests:
+                override: [php-scrutinizer-run]
+tools:
+  #external_code_coverage: true
+filter:
+  excluded_paths:
+    - "tests/"
+    - "RoboFile.php"

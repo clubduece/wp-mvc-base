@@ -1,52 +1,28 @@
 language: php
 
 php:
-- "5.3"
-- "5.4"
-- "5.5"
+- "7.0"
+- "7.1"
 
 env:
-- WP_VERSION=4.1.1 WP_MULTISITE=0
-- WP_VERSION=4.1 WP_MULTISITE=0
-- WP_VERSION=4.0.1 WP_MULTISITE=0
-- WP_VERSION=4.1.1 WP_MULTISITE=1
-- WP_VERSION=4.1 WP_MULTISITE=1
-- WP_VERSION=4.0.1 WP_MULTISITE=1
+- WP_VERSION=4.9.1 WP_MULTISITE=0
+- WP_VERSION=4.9 WP_MULTISITE=0
 
 before_script:
-- curl http://cs.sensiolabs.org/get/php-cs-fixer.phar -o php-cs-fixer.phar
-- curl -s http://getcomposer.org/installer | php
-- php composer.phar install --dev --no-interaction --prefer-source
+- composer install --dev --no-interaction
 #Coveralls support
 - mkdir -p build/logs
 - mkdir -p build/cov
-#phpUnit setup
-#- mkdir -p tmp
-# Initialize the WP core directory
-- export WP_CORE_DIR=/tmp/wordpress/
-- wget -nv -O /tmp/wordpress.tar.gz https://github.com/WordPress/WordPress/tarball/$WP_VERSION
-- mkdir -p $WP_CORE_DIR
-- tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
-# Initialize the WP unit test directory
-- export WP_TESTS_DIR=/tmp/wordpress-tests/
-- svn co http://develop.svn.wordpress.org/tags/$WP_VERSION /tmp/wordpress-tests/
-# Set up the database access
-- cp /tmp/wordpress-tests/wp-tests-config-sample.php /tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s:dirname( __FILE__ ) . '/wordpress/':'$WP_CORE_DIR':" /tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/youremptytestdbnamehere/wordpress_test/" /tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/yourusernamehere/root/" /tmp/wordpress-tests/wp-tests-config.php
-- sed -i "s/yourpasswordhere//" /tmp/wordpress-tests/wp-tests-config.php
-- mysql -e 'CREATE DATABASE wordpress_test;' -uroot
 
 script:
-- phpunit
+- ./vendor/bin/robo tests $WP_VERSION
 
 after_script:
-- php vendor/bin/coveralls -v --dry-run
+#- php vendor/bin/coveralls -v --dry-run
 
 notifications:
     email:
         recipients:
-          - daryl@clubduece.com
+          - daryl@clubduece.net
         on_success: change
         on_failure: always

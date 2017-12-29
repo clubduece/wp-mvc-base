@@ -1,45 +1,59 @@
 <?php
-/*
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+namespace WPMVCB;
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-class WPMVCB_Post_View_Base {
+/**
+ * Class Post_View_Base
+ * @package WPMVCB
+ */
+class Post_View_Base extends Base {
 
 	/**
-	 * @var WPMVCB_Cpt_Model_Base
+	 * @var Post_Base
 	 */
 	protected $item;
 
-	public function __construct( $item ) {
+	/**
+	 * Post_View_Base constructor.
+	 *
+	 * @param Post_Base $item
+	 * @param array     $args
+	 */
+	public function __construct( $item, $args = array() ) {
 
 		$this->item = $item;
 
+		parent::__construct( $args );
+
 	}
 
+	/**
+	 * @param string $template
+	 * @param array  $args
+	 */
 	public function the_template( $template, $args = array() ) {
 
 		$item = $this->item;
 
+		/**
+		 * Yes, we are aware of the dangers of extract. However, this is the
+		 * exact intended use of extract(), which enables this library
+		 * to emulate the global nature of WordPress variables available in theme templates.
+		 */
 		extract( $args );
 
 		if( file_exists( $template ) ) {
-			printf( '<!-- Template: %1$s -->', str_replace( WP_CONTENT_DIR, 'CONTENT_DIR', $template ) );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				printf( '<!-- Template: %1$s -->', str_replace( WP_CONTENT_DIR, 'CONTENT_DIR', $template ) );
+			}
 			require $template;
 		}
 
 	}
 
+	/**
+	 * @param string $size
+	 * @param array  $args
+	 */
 	public function the_image( $size = 'full', $args = array() ) {
 
 		if ( is_callable( array( $this->item, 'get_image' ) ) ) {
